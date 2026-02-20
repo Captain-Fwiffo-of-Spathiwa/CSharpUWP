@@ -129,10 +129,48 @@ namespace OOP_Part1
         {
             Debug.WriteLine("\n\n\n ============ TESTING HABIT STREAKS ============ \n\n\n");
 
-            Habit WeeklyHabit0 = new("Get gains", DateTime.Now + TimeSpan.FromDays(1), Frequency.Weekly);
-            Habit WeeklyHabit1 = new("Get swol", DateTime.Now + TimeSpan.FromDays(1), Frequency.Weekly);
-            Habit DailyHabit2 = new("Beefcake", DateTime.Now + TimeSpan.FromDays(1), Frequency.Daily);
-            Habit DailyHabit3 = new("Post memes", DateTime.Now + TimeSpan.FromDays(1), Frequency.Daily);
+            Debug.WriteLine("4 habit tasks are created, with initial dummy streak values and due dates hard-coded for demonstration.");
+            Debug.WriteLine("Observe the due dates of these dummy habits to visualse which should and shouldn't have streaks");
+            Debug.WriteLine("continued once they've been completed today.\n");
+
+            Habit WeeklyHabit0 = new("Get gains", DateTime.Now + TimeSpan.FromDays(-77), Frequency.Weekly, 10);
+            Habit WeeklyHabit1 = new("Get swol", DateTime.Now + TimeSpan.FromDays(3), Frequency.Weekly, 2);
+            Habit DailyHabit2 = new("Beefcake", DateTime.Now + TimeSpan.FromDays(-57), Frequency.Daily, 14);
+            Habit DailyHabit3 = new("Post memes", DateTime.Now + TimeSpan.FromDays(1), Frequency.Daily, 55);
+
+            Debug.WriteLine($"Habit0 initialised with a dummy streak of: {WeeklyHabit0.Streak}, due: {WeeklyHabit0.DueDate}.");
+            Debug.WriteLine($"Habit1 initialised with a dummy streak of: {WeeklyHabit1.Streak}, due: {WeeklyHabit1.DueDate}.");
+            Debug.WriteLine($"Habit2 initialised with a dummy streak of: {DailyHabit2.Streak}, due: {DailyHabit2.DueDate}.");
+            Debug.WriteLine($"Habit3 initialised with a dummy streak of: {DailyHabit3.Streak}, due: {DailyHabit3.DueDate}.");
+
+            Debug.WriteLine("\nUpon completing all 4 tasks, any that were due more than 1 week / 1 day in the past will have reset their streak back to 1.");
+            Debug.WriteLine("And any that were due in a current due date window will have incremented streaks.\n");
+
+            WeeklyHabit0.ToggleCompletion();
+            WeeklyHabit1.ToggleCompletion();
+            DailyHabit2.ToggleCompletion();
+            DailyHabit3.ToggleCompletion();
+
+            Debug.WriteLine($"Habit0 now with a dummy streak of: {WeeklyHabit0.Streak}, due: {WeeklyHabit0.DueDate}.");
+            Debug.WriteLine($"Habit1 now with a dummy streak of: {WeeklyHabit1.Streak}, due: {WeeklyHabit1.DueDate}.");
+            Debug.WriteLine($"Habit2 now with a dummy streak of: {DailyHabit2.Streak}, due: {DailyHabit2.DueDate}.");
+            Debug.WriteLine($"Habit3 now with a dummy streak of: {DailyHabit3.Streak}, due: {DailyHabit3.DueDate}.");
+
+            Debug.WriteLine("\nNow we'll un-complete those tasks. We should see streak counters reduce for everything, and we should see");
+            Debug.WriteLine("due dates adjust to a valid near-future due date that's been fast-forwarded from the initial dummy due date.\n");
+
+            WeeklyHabit0.ToggleCompletion();
+            WeeklyHabit1.ToggleCompletion();
+            DailyHabit2.ToggleCompletion();
+            DailyHabit3.ToggleCompletion();
+
+            Debug.WriteLine($"Habit0 now with a dummy streak of: {WeeklyHabit0.Streak}, due: {WeeklyHabit0.DueDate}.");
+            Debug.WriteLine($"Habit1 now with a dummy streak of: {WeeklyHabit1.Streak}, due: {WeeklyHabit1.DueDate}.");
+            Debug.WriteLine($"Habit2 now with a dummy streak of: {DailyHabit2.Streak}, due: {DailyHabit2.DueDate}.");
+            Debug.WriteLine($"Habit3 now with a dummy streak of: {DailyHabit3.Streak}, due: {DailyHabit3.DueDate}.");
+
+            Debug.WriteLine("\nHuzzah. The only place in the code that sees dummy values is the Habit ctor.");
+            Debug.WriteLine("Check its comment  for further explanation of the dummy variables.\n");
         }
 
         private void TestProjects()
@@ -140,7 +178,7 @@ namespace OOP_Part1
             Debug.WriteLine("\n\n\n ============ TESTING PROJECTS ============ \n\n\n");
 
             Project timeProject = new("Time Machine Build 1");
-            Habit ponderKittensHabit = new("Ponder kittens", DateTime.Today, Frequency.Weekly);
+            Habit ponderKittensHabit = new("Ponder kittens", DateTime.Today, Frequency.Weekly, 0);
 
             timeProject.AddTask(Task0);
             timeProject.AddTask(Task1);

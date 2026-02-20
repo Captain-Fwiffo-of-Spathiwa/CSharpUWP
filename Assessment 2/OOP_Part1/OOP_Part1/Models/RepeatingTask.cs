@@ -36,8 +36,9 @@ namespace OOP_Part1.Models
             Frequency = frequency;
         }
 
-        // A task is incomplete if its completed date is either null, or is
-        // before the previous task cycle's due date.
+        // A task is complete if the time it was last completed is inside the current due date cycle.
+        // Eg., if the weekly task is due in 2 days, and the last completion time was 3 days ago,
+        // the task is currently complete.
         public override bool IsComplete
         {
             get
@@ -48,7 +49,7 @@ namespace OOP_Part1.Models
                 }
                 
                 DateTime previousDueDate = (DateTime)DueDate - TimeSpan.FromDays(Frequency == Frequency.Daily? 1 : 7);
-                return DateLastCompleted < previousDueDate;
+                return DateLastCompleted > previousDueDate;
             }
         }
 
