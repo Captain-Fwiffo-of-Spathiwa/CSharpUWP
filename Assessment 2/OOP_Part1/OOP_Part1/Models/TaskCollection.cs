@@ -8,6 +8,8 @@ internal class TaskCollection
 {
     private List<TaskList> TaskLists = new();
 
+    // Default ctor
+
     public int TotalTasksCount
     {
         get
