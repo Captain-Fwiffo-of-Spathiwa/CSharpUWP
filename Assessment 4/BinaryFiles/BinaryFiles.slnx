@@ -10,4 +10,10 @@
     <Platform Solution="*|x86" Project="x86" />
     <Deploy />
   </Project>
+  <Project Path="UnitTests/UnitTests.csproj" Id="d6c20d2b-bbde-41dd-ac8c-4d5c3aa23487">
+    <Platform Solution="*|arm64" Project="arm64" />
+    <Platform Solution="*|x64" Project="x64" />
+    <Platform Solution="*|x86" Project="x86" />
+    <Deploy />
+  </Project>
 </Solution>

@@ -6,7 +6,7 @@ using System.IO;
 
 namespace BinaryFiles.Models
 {
-    struct Priority
+    public struct Priority
     {
         public int Value = 0;
 
@@ -26,7 +26,7 @@ namespace BinaryFiles.Models
         }
     }
 
-    internal class Task
+    public class Task
     {
         // -------- Assessment 1 fields ------------------------------------ //
         private const string        DefaultDescription  = "Default Task Desc";

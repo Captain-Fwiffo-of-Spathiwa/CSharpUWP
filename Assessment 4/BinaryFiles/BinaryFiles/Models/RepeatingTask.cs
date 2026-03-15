@@ -16,15 +16,15 @@ namespace BinaryFiles.Models
      *  How you implement this is up to you.
     */
 
-    enum Frequency
+    public enum Frequency
     {
         Daily,
         Weekly
     }
 
-    internal class RepeatingTask : Task
+    public class RepeatingTask : Task
     {
-        protected Frequency     Frequency;
+        public Frequency        Frequency;
         protected DateTime?     DateLastCompleted = null;
 
         /*

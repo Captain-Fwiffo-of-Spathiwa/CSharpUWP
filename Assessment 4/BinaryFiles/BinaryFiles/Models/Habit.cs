@@ -6,7 +6,7 @@ using BinaryFiles.Helpers;
 
 namespace BinaryFiles.Models
 {
-    internal class Habit : RepeatingTask
+    public class Habit : RepeatingTask
     {
         /*
         *  Blurb:

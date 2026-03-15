@@ -9,19 +9,19 @@ using System.Linq;
 using BinaryFiles.Helpers;
 
 /*
-[] Update your task collection class to have a save() and a load() method
-   that handles storing the task lists and tasks. 
+[✓] Update your task collection class to have a save() and a load() method
+    that handles storing the task lists and tasks. 
 
-[] The task collection itself, however, is just there to hold everything else
-   and has noneof its own data that needs to be saved.
+[✓] The task collection itself, however, is just there to hold everything else
+    and has noneof its own data that needs to be saved.
 
 [] Ensure the app fails gracefully if there is a problem.
 
 Testing
 =======
 
-[] Write some code to show that your classes, methods and properties are all
-   working as intended and output the results to the console.
+[✓] Write some code to show that your classes, methods and properties are all
+    working as intended and output the results to the console.
 
 [] Make sure the app fails gracefully when it runs into problems - for example,
    if the file is missing.
@@ -33,7 +33,7 @@ Testing
 
 namespace BinaryFiles.Models
 {
-internal class TaskCollection
+public class TaskCollection
 {
     private List<TaskList> TaskLists = new();
 

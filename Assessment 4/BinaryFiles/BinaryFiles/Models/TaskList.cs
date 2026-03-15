@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace BinaryFiles.Models
 {
-    internal class TaskList
+    public class TaskList
     {
         private const string DefaultName = "Just another TaskList";
 
