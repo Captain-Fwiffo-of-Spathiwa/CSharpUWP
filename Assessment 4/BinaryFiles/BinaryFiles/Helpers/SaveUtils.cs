@@ -6,7 +6,7 @@ using System.Text;
 
 namespace BinaryFiles.Helpers
 {
-    static class SaveUtils
+    public static class SaveUtils
     {
         //static public void SaveAndPrint<T>(BinaryWriter writer, T value)
         //{

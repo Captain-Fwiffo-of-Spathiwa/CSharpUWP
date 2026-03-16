@@ -26,18 +26,18 @@ Testing
 [] Make sure the app fails gracefully when it runs into problems - for example,
    if the file is missing.
 
-[] Also create unit tests to check that saving and loading returns the same
-   data, including samples of each type of data (habits, projects, etc). Don’t
-   forget that race conditions may affect this, depending on how it’s done. 
+[✓] Also create unit tests to check that saving and loading returns the same
+    data, including samples of each type of data (habits, projects, etc). Don’t
+    forget that race conditions may affect this, depending on how it’s done. 
 */
 
 namespace BinaryFiles.Models
 {
 public class TaskCollection
 {
-    private List<TaskList> TaskLists = new();
+    private List<TaskList>  TaskLists = new();
+    private string BinarySaveFilename = "MyTasksCollection.bin";
 
-    // Default ctor
     public int TotalTasksCount
     {
         get
@@ -86,7 +86,7 @@ public class TaskCollection
             $"{ApplicationData.Current.LocalFolder.Path}");
 
         StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
-        StorageFile file = await storageFolder.CreateFileAsync("MyTaskCollection.bin", CreationCollisionOption.ReplaceExisting);
+        StorageFile file = await storageFolder.CreateFileAsync(BinarySaveFilename, CreationCollisionOption.ReplaceExisting);
 
         using (var stream = File.Open(file.Path, FileMode.Create))
         {
@@ -114,7 +114,7 @@ public class TaskCollection
             $"{ApplicationData.Current.LocalFolder.Path}");
 
         StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
-        using (var stream = File.Open(storageFolder.Path + "\\MyTaskCollection.bin", FileMode.Open))
+        using (var stream = File.Open(storageFolder.Path + "\\" + BinarySaveFilename, FileMode.Open))
         {
             using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
             {
