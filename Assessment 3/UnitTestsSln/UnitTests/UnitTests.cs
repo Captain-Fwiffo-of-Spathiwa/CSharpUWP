@@ -5,20 +5,21 @@ using System.Text;
 using Windows.Storage;
 using TaskManagement.Helpers;
 using TaskManagement.Models;
+using Windows.ApplicationModel.Activation;
 
 /*
 
 The unit tests should check that the following work as expected:
 
 [✓] Adding a new list to the collection.
-[] Adding tasks to a list. Don’t forget to check the task count.
-[] Completing a task. Don’t forget to check the count of complete and
-   incomplete tasks as part of this.
-[] Setting a task to be incomplete, Don’t forget to check the count of
-   complete and incomplete tasks as part of this.
-[] Deleting tasks from a list, including emptying the list. Don’t forget
-   to check the task count as part of this.
-[] Test that repeating tasks repeat correctly.
+[✓] Adding tasks to a list. Don’t forget to check the task count.
+[✓] Completing a task. Don’t forget to check the count of complete and
+    incomplete tasks as part of this.
+[✓] Setting a task to be incomplete, Don’t forget to check the count of
+    complete and incomplete tasks as part of this.
+[✓] Deleting tasks from a list, including emptying the list. Don’t forget
+    to check the task count as part of this.
+[✓] Test that repeating tasks repeat correctly.
 [] Test that habits correctly count completions.
 [] Test the percentage complete for projects.
 
@@ -37,7 +38,13 @@ The unit tests should check that the app handles the following errors:
 namespace UnitTests
 {
     /// <summary>
+    /// Unit tests for TaskCollections, TaskLists, Tasks, and their subtypes.
+    /// Last run: March 23rd, 2026
     /// 
+    /// Changelog:
+    /// ----------
+    /// 23/03/26: Collection, List, and Task tests added. Fixed TestSaveAndLoadTaskCollection().
+    /// 16/03/06: Binary save and load tests added.
     /// </summary>
     [TestClass]
     public class UnitTests
@@ -143,10 +150,8 @@ namespace UnitTests
         }
 
         /// <summary>
-        /// Test adding new lists to a collection.
-        ///
-        /// Checks addition of an empty list, a populated lists, and a list
-        /// with tasks added after the list was put in a collection.
+        /// Test collection addition of an empty list, populated lists, and a
+        /// list with tasks added after the list was put in a collection.
         /// </summary>
         [TestMethod]
         public void TestAddNewListToCollection()
@@ -170,59 +175,236 @@ namespace UnitTests
         }
 
         /// <summary>
-        /// 
+        /// Test adding singles, duplicates, subtyped Tasks to a TaskList.
         /// </summary>
         [TestMethod]
         public void TestAddTasksToList()
-        { }
+        {
+            Assert.AreEqual(0, AT3TasksListA.TotalTasksCount);
 
+            AT3TasksListA.AddTask(TaskA);
+            Assert.AreEqual(1, AT3TasksListA.TotalTasksCount);
 
+            AT3TasksListA.AddTask(TaskA);
+            Assert.AreEqual(2, AT3TasksListA.TotalTasksCount);
 
+            AT3TasksListA.AddTask(RepTaskA);
+            AT3TasksListA.AddTask(HabitB);
+            Assert.AreEqual(4, AT3TasksListA.TotalTasksCount);
 
+            String expected = "Task: Buy cats\nTask: Buy cats\nRepeating Task: Tend to cats\nHabit: Ignore cats\n";
+            Assert.AreEqual(expected, AT3TasksListA.ToString());
+        }
 
+        /// <summary>
+        /// Test completing tasks individually and plus a TaskList's
+        /// recognition of completed Tasks.
+        /// </summary>
         [TestMethod]
-        public void TestCompleteTask()
-        { }
+        public void TestCompleteTasks()
+        {
+            Assert.AreEqual(0, AT3TasksListA.IncompleteTasksCount);
 
+            AT3TasksListA.AddTask(TaskA);
+            AT3TasksListA.AddTask(TaskB);
+            AT3TasksListA.AddTask(RepTaskA);
+            AT3TasksListA.AddTask(RepTaskB);
+            AT3TasksListA.AddTask(HabitA);
+            AT3TasksListA.AddTask(HabitB);
+            Assert.IsFalse(TaskA.IsComplete);
+            Assert.IsFalse(TaskB.IsComplete);
+            Assert.IsFalse(RepTaskA.IsComplete);
+            Assert.IsFalse(RepTaskB.IsComplete);
+            Assert.IsFalse(HabitA.IsComplete);
+            Assert.IsFalse(HabitB.IsComplete);
+            Assert.AreEqual(6, AT3TasksListA.IncompleteTasksCount);
+            Assert.AreEqual(6, AT3TasksListA.TotalTasksCount);
+
+            TaskA.ToggleCompletion();
+            RepTaskA.ToggleCompletion();
+            Assert.IsTrue(TaskA.IsComplete);
+            Assert.IsTrue(RepTaskA.IsComplete);
+            Assert.AreEqual(4, AT3TasksListA.IncompleteTasksCount);
+            Assert.AreEqual(6, AT3TasksListA.TotalTasksCount);
+
+            AT3TasksListA.ClearCompletedTasks();
+            Assert.AreEqual(4, AT3TasksListA.TotalTasksCount);
+        }
+
+        /// <summary>
+        /// Test setting complete tasks as incomplete individually, plus
+        /// the TaskList's abiltiy to not recognise and not remove incomplete
+        /// Tasks.
+        /// </summary>
         [TestMethod]
         public void TestSetTaskIncomplete()
-        { }
+        {
+            Assert.AreEqual(0, AT3TasksListA.IncompleteTasksCount);
 
+            AT3TasksListA.AddTask(TaskA);
+            AT3TasksListA.AddTask(RepTaskA);
+            AT3TasksListA.AddTask(HabitA);
+            TaskA.ToggleCompletion();
+            RepTaskA.ToggleCompletion();
+            HabitA.ToggleCompletion();
+            Assert.IsTrue(TaskA.IsComplete);
+            Assert.IsTrue(RepTaskA.IsComplete);
+            Assert.IsTrue(HabitA.IsComplete);
+
+            TaskA.ToggleCompletion();
+            RepTaskA.ToggleCompletion();
+            Assert.IsFalse(TaskA.IsComplete);
+            Assert.IsFalse(RepTaskA.IsComplete);
+            Assert.AreEqual(2, AT3TasksListA.IncompleteTasksCount);
+            Assert.AreEqual(3, AT3TasksListA.TotalTasksCount);
+
+            AT3TasksListA.ClearCompletedTasks();
+            Assert.AreEqual(2, AT3TasksListA.TotalTasksCount);
+        }
+
+        /// <summary>
+        /// Test removing tasks via completion.
+        /// </summary>
         [TestMethod]
         public void TestDeleteTasksFromList()
-        { }
+        {
+            Assert.AreEqual(0, AT3TasksListA.IncompleteTasksCount);
 
+            AT3TasksListA.AddTask(TaskA);
+            AT3TasksListA.AddTask(TaskB);
+            AT3TasksListA.AddTask(RepTaskA);
+            AT3TasksListA.AddTask(RepTaskB);
+            AT3TasksListA.AddTask(HabitA);
+            AT3TasksListA.AddTask(HabitB);
+            Assert.AreEqual(6, AT3TasksListA.IncompleteTasksCount);
+            Assert.AreEqual(6, AT3TasksListA.TotalTasksCount);
+
+            TaskA.ToggleCompletion();
+            TaskB.ToggleCompletion();
+            AT3TasksListA.ClearCompletedTasks();
+            Assert.AreEqual(4, AT3TasksListA.TotalTasksCount);
+
+            RepTaskA.ToggleCompletion();
+            RepTaskB.ToggleCompletion();
+            HabitA.ToggleCompletion();
+            HabitB.ToggleCompletion();
+            AT3TasksListA.ClearCompletedTasks();
+            Assert.AreEqual(0, AT3TasksListA.TotalTasksCount);
+
+            AT3TasksListA.ClearCompletedTasks();
+            Assert.AreEqual(0, AT3TasksListA.TotalTasksCount);
+        }
+
+        /// <summary>
+        /// Test that a RepeatingTask repeats; that is, it updates its DueDate
+        /// if the present day is inside its next frequency window.
+        /// </summary>
         [TestMethod]
         public void TestRepeatingTasksRepeat()
-        { }
+        {
+            int daysInPast = 11;    
+            int daysInFuture = 12;
+
+            RepeatingTask pastRepDailyTask = new RepeatingTask("pastRepDailyTask", DateTime.Now - TimeSpan.FromDays(daysInPast), Frequency.Daily);
+            RepeatingTask pastRepWeeklyTask = new RepeatingTask("pastRepWeeklyTask", DateTime.Now - TimeSpan.FromDays(daysInPast), Frequency.Weekly);
+            RepeatingTask presentRepDailyTask = new RepeatingTask("presentRepDailyTask", DateTime.Now, Frequency.Daily);
+            RepeatingTask presentRepWeeklyTask = new RepeatingTask("presenttRepWeeklyTask", DateTime.Now, Frequency.Weekly);
+            RepeatingTask futureRepDailyTask = new RepeatingTask("futureRepDailyTask", DateTime.Now + TimeSpan.FromDays(daysInFuture), Frequency.Daily);
+            RepeatingTask futureRepWeeklyTask = new RepeatingTask("futureRepWeeklyTask", DateTime.Now + TimeSpan.FromDays(daysInFuture), Frequency.Weekly);
+
+            Assert.IsFalse(pastRepDailyTask.IsComplete);
+            Assert.IsFalse(pastRepWeeklyTask.IsComplete);
+            Assert.IsFalse(presentRepDailyTask.IsComplete);
+            Assert.IsFalse(presentRepWeeklyTask.IsComplete);
+            Assert.IsFalse(futureRepDailyTask.IsComplete);
+            Assert.IsFalse(futureRepWeeklyTask.IsComplete);
+
+            pastRepDailyTask.ToggleCompletion();
+            pastRepWeeklyTask.ToggleCompletion();
+            presentRepDailyTask.ToggleCompletion();
+            presentRepWeeklyTask.ToggleCompletion();
+            futureRepDailyTask.ToggleCompletion();
+            futureRepWeeklyTask.ToggleCompletion();
+
+            // Completing tasks that were due in the past will get a new due date that is at the
+            // end of the due date window that fits the present day.
+            // Eg: A weekly task made 11 days ago will get a new due date of 3 days in the future.
+            // Eg: A daily task made any time in the past will get a new due date of tomorrow.
+            String nextDailyDueDate = (DateTime.Now + TimeSpan.FromDays(1)).ToShortDateString();
+            int daysAheadForNextWeeklyDueDate = 7 - (daysInPast % 7);  // 7 - (11 % 7) == 3
+            String nextWeeklyDueDate = (DateTime.Now + TimeSpan.FromDays(daysAheadForNextWeeklyDueDate)).ToShortDateString();
+            Assert.AreEqual(nextDailyDueDate, pastRepDailyTask.DueDate.Value.ToShortDateString());
+            Assert.AreEqual(nextWeeklyDueDate, pastRepWeeklyTask.DueDate.Value.ToShortDateString());
+
+            // Completing tasks that were due today will get a new due date for the due date window
+            // that starts today.
+            nextWeeklyDueDate = (DateTime.Now + TimeSpan.FromDays(7)).ToShortDateString();
+            Assert.AreEqual(nextDailyDueDate, presentRepDailyTask.DueDate.Value.ToShortDateString());
+            Assert.AreEqual(nextWeeklyDueDate, presentRepWeeklyTask.DueDate.Value.ToShortDateString());
+
+            // Completing tasks due in the future will not get a new due date until the present date
+            // passes that future due date.
+            String nextFutureDailyDueDate = (DateTime.Now + TimeSpan.FromDays(daysInFuture)).ToShortDateString();
+            String nextFutureWeeklyDueDate = (DateTime.Now + TimeSpan.FromDays(daysInFuture)).ToShortDateString();
+            Assert.AreEqual(nextFutureDailyDueDate, futureRepDailyTask.DueDate.Value.ToShortDateString());
+            Assert.AreEqual(nextFutureWeeklyDueDate, futureRepWeeklyTask.DueDate.Value.ToShortDateString());
+
+            // Ensure RepeatedTasks completed today report as complete since today is inside or
+            // before the next due date window.
+            Assert.IsTrue(pastRepDailyTask.IsComplete);
+            Assert.IsTrue(pastRepWeeklyTask.IsComplete);
+            Assert.IsTrue(presentRepDailyTask.IsComplete);
+            Assert.IsTrue(presentRepWeeklyTask.IsComplete);
+            Assert.IsTrue(futureRepDailyTask.IsComplete);
+            Assert.IsTrue(futureRepWeeklyTask.IsComplete);
+        }
 
         [TestMethod]
         public void TestHabitsCountCompletions()
-        { }
+        { Assert.Fail(); }
 
         [TestMethod]
         public void TestProjectsCompletePercentage()
-        { }
+        { Assert.Fail(); }
 
         [TestMethod]
         public void TestBadTaskName()
-        { }
+        { Assert.Fail(); }
 
         [TestMethod]
         public void TestBadListName()
-        { }
+        { Assert.Fail(); }
 
         [TestMethod]
         public void TestAddRepeatingTaskToProject()
-        { }
+        { Assert.Fail(); }
 
         [TestMethod]
         public void TestAddHabitToProject()
-        { }
+        { Assert.Fail(); }
 
         [TestMethod]
         public void TestRepeatingTaskWithMissingInformation()
-        { }
+        { Assert.Fail(); }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -345,8 +527,7 @@ namespace UnitTests
             // TaskCollections take care of their own binary reader and
             // writer so testing them is quite mindless.
             await AT4TasksCollection.Save(testBinarySaveFilename);
-            
-            
+
             TaskCollection newTasksCollection = new();
             newTasksCollection.Load(testBinarySaveFilename);
 
