@@ -7,6 +7,7 @@ using Windows.Storage;
 using File = System.IO.File;
 using System.Linq;
 using BinaryFiles.Helpers;
+using Windows.ApplicationModel.Core;
 
 /*
 [✓] Update your task collection class to have a save() and a load() method
@@ -15,7 +16,7 @@ using BinaryFiles.Helpers;
 [✓] The task collection itself, however, is just there to hold everything else
     and has noneof its own data that needs to be saved.
 
-[] Ensure the app fails gracefully if there is a problem.
+[✓] Ensure the app fails gracefully if there is a problem.
 
 Testing
 =======
@@ -23,7 +24,7 @@ Testing
 [✓] Write some code to show that your classes, methods and properties are all
     working as intended and output the results to the console.
 
-[] Make sure the app fails gracefully when it runs into problems - for example,
+[✓] Make sure the app fails gracefully when it runs into problems - for example,
    if the file is missing.
 
 [✓] Also create unit tests to check that saving and loading returns the same
@@ -85,20 +86,44 @@ public class TaskCollection
         Debug.WriteLine($"Attempting to save to:\n\t" +
             $"{ApplicationData.Current.LocalFolder.Path}");
 
-        StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
-        StorageFile file = await storageFolder.CreateFileAsync(BinarySaveFilename, CreationCollisionOption.ReplaceExisting);
-
-        using (var stream = File.Open(file.Path, FileMode.Create))
+        // We handle exceptions in a very broad stroke, outside the using statements
+        try
         {
-            using (var writer = new BinaryWriter(stream, Encoding.UTF8, false))
-            {
-                SaveUtils.SaveAndPrintInt(writer, TaskLists.Count);
+            StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
+            StorageFile file = await storageFolder.CreateFileAsync(BinarySaveFilename, CreationCollisionOption.ReplaceExisting);
 
-                foreach (var taskList in TaskLists)
+            using (var stream = File.Open(file.Path, FileMode.Create))
+            {
+                using (var writer = new BinaryWriter(stream, Encoding.UTF8, false))
                 {
-                    taskList.SaveTo(writer);
+                    SaveUtils.SaveAndPrintInt(writer, TaskLists.Count);
+
+                    foreach (var taskList in TaskLists)
+                    {
+                        taskList.SaveTo(writer);
+                    }
                 }
             }
+        }
+        catch (IOException ex)
+        {
+            Debug.WriteLine($"Could not open {BinarySaveFilename} for writing. Disk or file error.");
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            // We can check this by simply setting the file to read-only
+            Debug.WriteLine($"Could not open {BinarySaveFilename} for writing. ACCESS DENIED.");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error saving data. Exception message: {ex.Message}");
+            // We could kill the application here, since our using blocks have at
+            // least seen the file/stream resources disposed of. But in this case
+            // we'll let the application continue to run even if it couldn't save.
+            // If we were to call CoreApplication.Kill(), it's not an immediate
+            // out. Subsequent code will still run until Windows shuts the app
+            // down itself.
+            // CoreApplication.Kill();
         }
     }
 
@@ -106,7 +131,7 @@ public class TaskCollection
     /// Destructively attempted a binary load. If the load fails, this
     /// object's current data will be destroyed in the process.
     /// </summary>
-    public void Load()  
+    public void Load()
     {
         TaskLists = new();
 
@@ -114,18 +139,35 @@ public class TaskCollection
             $"{ApplicationData.Current.LocalFolder.Path}");
 
         StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
-        using (var stream = File.Open(storageFolder.Path + "\\" + BinarySaveFilename, FileMode.Open))
-        {
-            using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
-            {
-                int numTaskLists = SaveUtils.LoadAndPrintInt(reader);
 
-                for (int i = 0; i < numTaskLists; ++i)
+        try
+        {
+            using (var stream = File.Open(storageFolder.Path + "\\" + BinarySaveFilename, FileMode.Open))
+            {
+                using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
                 {
-                    TaskLists.Add(new("temp TaskList"));
-                    TaskLists.Last().LoadFrom(reader);
+                    int numTaskLists = SaveUtils.LoadAndPrintInt(reader);
+
+                    for (int i = 0; i < numTaskLists; ++i)
+                    {
+                        TaskLists.Add(new("temp TaskList"));
+                        TaskLists.Last().LoadFrom(reader);
+                    }
                 }
             }
+        }
+        catch (FileNotFoundException ex)
+        {
+            // We can check this with a breakpoint, manually deleting the file, then continuing
+            Debug.WriteLine($"Could not open {BinarySaveFilename} for reading. File not found.");
+        }
+        catch (IOException ex)
+        {
+            Debug.WriteLine($"Could not open {BinarySaveFilename} for reading. Disk or file error.");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error loading data. Exception message: {ex.Message}");
         }
     }
 

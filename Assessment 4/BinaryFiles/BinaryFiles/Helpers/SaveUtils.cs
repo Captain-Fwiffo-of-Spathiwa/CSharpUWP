@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using Windows.ApplicationModel.Core;
 
 namespace BinaryFiles.Helpers
 {
@@ -15,11 +16,15 @@ namespace BinaryFiles.Helpers
         //}
 
         /* ----------------------------------------------------------------
-         *  We very nearly got away with being able to template our
+         *  We nearly got away with being able to use a templated
          *  SaveAndPrint<>() function, using (dynamic) to force it into
-         *  Write(). But the int/long crossover caught us out, with an
-         *  8-byte zero value getting saved in 4-bytes, breaking things.
-         * ---------------------------------------------------------------*/ 
+         *  the right Write() overload. But the int/long crossover caught
+         *  us out, turning a zero from an 8-byte long into a 4-byte int,
+         *  breaking things ... "binarily".
+         *
+         *  C# probably has a way to explicitly prevent narrowing
+         *  conversions, but I am moving on.
+         * ---------------------------------------------------------------*/
         static public void SaveAndPrintInt(BinaryWriter writer, int value)
         {
             writer.Write(value);
