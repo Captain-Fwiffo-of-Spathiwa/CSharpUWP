@@ -27,6 +27,9 @@ namespace TaskManagement
         Habit Habit2 = new("Write even more code", DateTime.Now, Frequency.Daily, 0);
         Habit Habit3 = new("Keep forgetting to push", DateTime.Now, Frequency.Daily, 0);
 
+        private string BinarySaveFilename = "MyTasksCollection.bin";
+
+
         public MainPage()
         {
             InitializeComponent();
@@ -233,7 +236,7 @@ namespace TaskManagement
             Debug.WriteLine("\n Collection before Save(): \n");
             taskCollection.PrintAllTaskListTasks();
 
-            taskCollection.Save();      // Save it
+            taskCollection.Save(BinarySaveFilename);      // Save it
             Debug.WriteLine("\n Collection after Save(): \n");
             taskCollection.PrintAllTaskListTasks();
 
@@ -241,7 +244,7 @@ namespace TaskManagement
             Debug.WriteLine("\n Collection after nuking: \n");
             taskCollection.PrintAllTaskListTasks();
 
-            taskCollection.Load();      // Reload it
+            taskCollection.Load(BinarySaveFilename);      // Reload it
             Debug.WriteLine("\n Collection after Load(): \n");
             taskCollection.PrintAllTaskListTasks();
         }

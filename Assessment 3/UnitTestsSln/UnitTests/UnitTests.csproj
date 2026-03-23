@@ -20,6 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BinaryFiles\BinaryFiles.csproj" />
+    <ProjectReference Include="..\TaskManagement\TaskManagement.csproj" />
   </ItemGroup>
 </Project>

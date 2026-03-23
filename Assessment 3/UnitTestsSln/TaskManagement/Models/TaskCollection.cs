@@ -2,42 +2,20 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
-using Windows.Storage;
-using File = System.IO.File;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using TaskManagement.Helpers;
 using Windows.ApplicationModel.Core;
+using Windows.Storage;
+using File = System.IO.File;
 
-/*
-[✓] Update your task collection class to have a save() and a load() method
-    that handles storing the task lists and tasks. 
-
-[✓] The task collection itself, however, is just there to hold everything else
-    and has noneof its own data that needs to be saved.
-
-[✓] Ensure the app fails gracefully if there is a problem.
-
-Testing
-=======
-
-[✓] Write some code to show that your classes, methods and properties are all
-    working as intended and output the results to the console.
-
-[✓] Make sure the app fails gracefully when it runs into problems - for example,
-   if the file is missing.
-
-[✓] Also create unit tests to check that saving and loading returns the same
-    data, including samples of each type of data (habits, projects, etc). Don’t
-    forget that race conditions may affect this, depending on how it’s done. 
-*/
 
 namespace TaskManagement.Models
 {
 public class TaskCollection
 {
     private List<TaskList>  TaskLists = new();
-    private string BinarySaveFilename = "MyTasksCollection.bin";
 
     public int TotalTasksCount
     {
@@ -80,7 +58,7 @@ public class TaskCollection
         }
     }
 
-    public async void Save()
+    public async System.Threading.Tasks.Task Save(String binarySaveFilename)
     {
         // We use the app's local folder and create a file there
         Debug.WriteLine($"Attempting to save to:\n\t" +
@@ -90,7 +68,7 @@ public class TaskCollection
         try
         {
             StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
-            StorageFile file = await storageFolder.CreateFileAsync(BinarySaveFilename, CreationCollisionOption.ReplaceExisting);
+            StorageFile file = await storageFolder.CreateFileAsync(binarySaveFilename, CreationCollisionOption.ReplaceExisting);
 
             using (var stream = File.Open(file.Path, FileMode.Create))
             {
@@ -107,12 +85,12 @@ public class TaskCollection
         }
         catch (IOException ex)
         {
-            Debug.WriteLine($"Could not open {BinarySaveFilename} for writing. Disk or file error.");
+            Debug.WriteLine($"Could not open {binarySaveFilename} for writing. Disk or file error.");
         }
         catch (UnauthorizedAccessException ex)
         {
             // We can check this by simply setting the file to read-only
-            Debug.WriteLine($"Could not open {BinarySaveFilename} for writing. ACCESS DENIED.");
+            Debug.WriteLine($"Could not open {binarySaveFilename} for writing. ACCESS DENIED.");
         }
         catch (Exception ex)
         {
@@ -131,7 +109,7 @@ public class TaskCollection
     /// Destructively attempted a binary load. If the load fails, this
     /// object's current data will be destroyed in the process.
     /// </summary>
-    public void Load()
+    public void Load(String binarySaveFilename)
     {
         TaskLists = new();
 
@@ -142,7 +120,7 @@ public class TaskCollection
 
         try
         {
-            using (var stream = File.Open(storageFolder.Path + "\\" + BinarySaveFilename, FileMode.Open))
+            using (var stream = File.Open(storageFolder.Path + "\\" + binarySaveFilename, FileMode.Open))
             {
                 using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
                 {
@@ -159,11 +137,11 @@ public class TaskCollection
         catch (FileNotFoundException ex)
         {
             // We can check this with a breakpoint, manually deleting the file, then continuing
-            Debug.WriteLine($"Could not open {BinarySaveFilename} for reading. File not found.");
+            Debug.WriteLine($"Could not open {binarySaveFilename} for reading. File not found.");
         }
         catch (IOException ex)
         {
-            Debug.WriteLine($"Could not open {BinarySaveFilename} for reading. Disk or file error.");
+            Debug.WriteLine($"Could not open {binarySaveFilename} for reading. Disk or file error.");
         }
         catch (Exception ex)
         {
@@ -179,6 +157,20 @@ public class TaskCollection
         }
 
         Debug.WriteLine("\n ------------------------ \n");
+    }
+
+    public override string ToString()
+    {
+        String collectionString = string.Empty;
+
+        foreach (var taskList in TaskLists)
+        {
+            collectionString += taskList.ToString();
+        }
+
+        collectionString += "\n ------------------------ \n";
+
+        return collectionString;
     }
 }
 }

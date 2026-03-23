@@ -1,34 +1,75 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Text;
 using Windows.Storage;
-using BinaryFiles.Helpers;
-using BinaryFiles.Models;
+using TaskManagement.Helpers;
+using TaskManagement.Models;
+
+/*
+
+The unit tests should check that the following work as expected:
+
+[✓] Adding a new list to the collection.
+[] Adding tasks to a list. Don’t forget to check the task count.
+[] Completing a task. Don’t forget to check the count of complete and
+   incomplete tasks as part of this.
+[] Setting a task to be incomplete, Don’t forget to check the count of
+   complete and incomplete tasks as part of this.
+[] Deleting tasks from a list, including emptying the list. Don’t forget
+   to check the task count as part of this.
+[] Test that repeating tasks repeat correctly.
+[] Test that habits correctly count completions.
+[] Test the percentage complete for projects.
+
+The unit tests should check that the app handles the following errors:
+
+[] Settings the task name to be blank.
+[] Setting the list name to be blank.
+[] Placing a repeating task in a project.
+[] Placing a habit in a project.
+[] A repeating task with incomplete information (eg. Missing schedule)
+
+*/
 
 
 
 namespace UnitTests
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [TestClass]
     public class UnitTests
     {
-        string TestBinarySaveFilename;
+        string        TestBinarySaveFilename;
         StorageFolder TestFolder;
-        StorageFile TestFile;
+        StorageFile   TestFile;
 
-        BinaryFiles.Models.Task TaskA;
-        BinaryFiles.Models.Task TaskB;
-        BinaryFiles.Models.RepeatingTask RepTaskA;
-        BinaryFiles.Models.RepeatingTask RepTaskB;
-        BinaryFiles.Models.Habit HabitA;
-        BinaryFiles.Models.Habit HabitB;
+        TaskManagement.Models.Task          TaskA;
+        TaskManagement.Models.Task          TaskB;
+        TaskManagement.Models.RepeatingTask RepTaskA;
+        TaskManagement.Models.RepeatingTask RepTaskB;
+        TaskManagement.Models.Habit         HabitA;
+        TaskManagement.Models.Habit         HabitB;
 
-        BinaryFiles.Models.TaskList TasksListA;
-        BinaryFiles.Models.TaskList TasksListB;
 
-        BinaryFiles.Models.TaskCollection TasksCollection;
+        #region Assessment 3 test members
 
+        TaskManagement.Models.TaskList       AT3TasksListA;
+        TaskManagement.Models.TaskList       AT3TasksListB;
+        TaskManagement.Models.TaskCollection AT3TasksCollection;
+
+        #endregion
+
+
+        #region Assessment 4 test members
+
+        TaskManagement.Models.TaskList AT4TasksListA;
+        TaskManagement.Models.TaskList AT4TasksListB;
+        TaskManagement.Models.TaskCollection AT4TasksCollection;
+
+        #endregion
 
         /// <summary>
         /// Setup class fields used by our tests.
@@ -58,33 +99,136 @@ namespace UnitTests
 
             TaskA = new("Buy cats");
             TaskB = new("Buy dogs");
-            RepTaskA = new("Tend to cats", DateTime.Now, BinaryFiles.Models.Frequency.Weekly);
-            RepTaskB = new("Tend to dogs", DateTime.Now, BinaryFiles.Models.Frequency.Daily);
-            HabitA = new("Pat dogs", DateTime.Now, BinaryFiles.Models.Frequency.Daily, 0);
-            HabitB = new("Ignore cats", DateTime.Now, BinaryFiles.Models.Frequency.Daily, 10);
+            RepTaskA = new("Tend to cats", DateTime.Now, TaskManagement.Models.Frequency.Weekly);
+            RepTaskB = new("Tend to dogs", DateTime.Now, TaskManagement.Models.Frequency.Daily);
+            HabitA = new("Pat dogs", DateTime.Now, TaskManagement.Models.Frequency.Daily, 0);
+            HabitB = new("Ignore cats", DateTime.Now, TaskManagement.Models.Frequency.Daily, 10);
 
-            TasksListA = new("List of Tasks");
-            TasksListB = new("Other list of Tasks");
 
-            TasksCollection = new();
+            #region Assessment 3 test member setup
 
-            TasksListA.AddTask(TaskA);
-            TasksListA.AddTask(RepTaskA);
-            TasksListA.AddTask(HabitA);
+            AT3TasksListA = new("New list 1");
+            AT3TasksListB = new("new list 2");
 
-            TasksListB.AddTask(TaskB);
-            TasksListB.AddTask(RepTaskB);
-            TasksListB.AddTask(HabitB);
+            AT3TasksCollection = new();
 
-            TasksCollection.AddTaskList(TasksListA);
-            TasksCollection.AddTaskList(TasksListB);
+            #endregion
 
-            Assert.AreEqual(TasksListA.TotalTasksCount, 3);
-            Assert.AreEqual(TasksListB.TotalTasksCount, 3);
 
-            Assert.AreEqual(TasksCollection.TotalTasksCount, 6);
-            Assert.AreEqual(TasksCollection.IncompleteTasksCount, 6);
+            #region Assessment 4 test member setup
+
+            AT4TasksListA = new("List of Tasks");
+            AT4TasksListB = new("Other list of Tasks");
+
+            AT4TasksCollection = new();
+
+            AT4TasksListA.AddTask(TaskA);
+            AT4TasksListA.AddTask(RepTaskA);
+            AT4TasksListA.AddTask(HabitA);
+
+            AT4TasksListB.AddTask(TaskB);
+            AT4TasksListB.AddTask(RepTaskB);
+            AT4TasksListB.AddTask(HabitB);
+
+            AT4TasksCollection.AddTaskList(AT4TasksListA);
+            AT4TasksCollection.AddTaskList(AT4TasksListB);
+
+            Assert.AreEqual(AT4TasksListA.TotalTasksCount, 3);
+            Assert.AreEqual(AT4TasksListB.TotalTasksCount, 3);
+
+            Assert.AreEqual(AT4TasksCollection.TotalTasksCount, 6);
+            Assert.AreEqual(AT4TasksCollection.IncompleteTasksCount, 6);
+
+            #endregion
         }
+
+        /// <summary>
+        /// Test adding new lists to a collection.
+        ///
+        /// Checks addition of an empty list, a populated lists, and a list
+        /// with tasks added after the list was put in a collection.
+        /// </summary>
+        [TestMethod]
+        public void TestAddNewListToCollection()
+        {
+            Assert.AreEqual(0, AT3TasksCollection.TotalTasksCount);
+            Assert.AreEqual("\n ------------------------ \n", AT3TasksCollection.ToString());
+
+            AT3TasksCollection.AddTaskList(AT3TasksListA);
+            Assert.AreEqual(0, AT3TasksCollection.TotalTasksCount);
+
+            AT3TasksListA.AddTask(TaskA);
+            Assert.AreEqual(1, AT3TasksCollection.TotalTasksCount);
+
+            AT3TasksListB.AddTask(TaskA);
+            AT3TasksListB.AddTask(HabitA);
+            AT3TasksCollection.AddTaskList(AT3TasksListB);
+            Assert.AreEqual(3, AT3TasksCollection.TotalTasksCount);
+
+            String expectedString = "Task: Buy cats\nTask: Buy cats\nHabit: Pat dogs\n\n ------------------------ \n";
+            Assert.AreEqual(expectedString, AT3TasksCollection.ToString());
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod]
+        public void TestAddTasksToList()
+        { }
+
+
+
+
+
+        [TestMethod]
+        public void TestCompleteTask()
+        { }
+
+        [TestMethod]
+        public void TestSetTaskIncomplete()
+        { }
+
+        [TestMethod]
+        public void TestDeleteTasksFromList()
+        { }
+
+        [TestMethod]
+        public void TestRepeatingTasksRepeat()
+        { }
+
+        [TestMethod]
+        public void TestHabitsCountCompletions()
+        { }
+
+        [TestMethod]
+        public void TestProjectsCompletePercentage()
+        { }
+
+        [TestMethod]
+        public void TestBadTaskName()
+        { }
+
+        [TestMethod]
+        public void TestBadListName()
+        { }
+
+        [TestMethod]
+        public void TestAddRepeatingTaskToProject()
+        { }
+
+        [TestMethod]
+        public void TestAddHabitToProject()
+        { }
+
+        [TestMethod]
+        public void TestRepeatingTaskWithMissingInformation()
+        { }
+
+
+
+
+
+        #region Assessment 4 Tests
 
         /// <summary>
         /// Test binary save and load of all Task subtypes.
@@ -102,7 +246,7 @@ namespace UnitTests
             TestBinarySaveAndLoadGivenTaskType(HabitB);
         }
 
-        private void TestBinarySaveAndLoadGivenTaskType(BinaryFiles.Models.Task task)
+        private void TestBinarySaveAndLoadGivenTaskType(TaskManagement.Models.Task task)
         {
             using (var stream = File.Open(TestFile.Path, FileMode.Create))
             {
@@ -125,20 +269,20 @@ namespace UnitTests
                      *  This means we need to know the object's subtype.
                      * ---------------------------------------------------*/
 
-                    BinaryFiles.Models.Task newTask;
+                    TaskManagement.Models.Task newTask;
                     int newTaskExpectedTypeID;
 
                     // The order of this if-chain matters, due to the chain of inheritance.
                     // Ie., don't ask a Habit if it's just a Task.
-                    if (task is BinaryFiles.Models.Habit)
+                    if (task is TaskManagement.Models.Habit)
                     {
                         // new() lets us cast to a subtype
-                        newTask = new BinaryFiles.Models.Habit("dummy desc", DateTime.Now, BinaryFiles.Models.Frequency.Daily, 0);
+                        newTask = new TaskManagement.Models.Habit("dummy desc", DateTime.Now, TaskManagement.Models.Frequency.Daily, 0);
                         newTaskExpectedTypeID = 2;
                     }
-                    else if (task is BinaryFiles.Models.RepeatingTask)
+                    else if (task is TaskManagement.Models.RepeatingTask)
                     {
-                        newTask = new BinaryFiles.Models.RepeatingTask("dummy desc", DateTime.Now, BinaryFiles.Models.Frequency.Daily);
+                        newTask = new TaskManagement.Models.RepeatingTask("dummy desc", DateTime.Now, TaskManagement.Models.Frequency.Daily);
                         newTaskExpectedTypeID = 1;
                     }
                     else
@@ -168,8 +312,8 @@ namespace UnitTests
             {
                 using (var writer = new BinaryWriter(stream, Encoding.UTF8, false))
                 {
-                    TasksListA.SaveTo(writer);
-                    TasksListB.SaveTo(writer);
+                    AT4TasksListA.SaveTo(writer);
+                    AT4TasksListB.SaveTo(writer);
                 }
             }
 
@@ -179,13 +323,13 @@ namespace UnitTests
                 {
                     // We don't have subtypes and a TaskList save manages
                     // its own count, so there's nothing complex here.
-                    BinaryFiles.Models.TaskList newTasksListA = new("dummy desc");
+                    TaskManagement.Models.TaskList newTasksListA = new("dummy desc");
                     newTasksListA.LoadFrom(reader);
-                    Assert.AreEqual(TasksListA.ToString(), newTasksListA.ToString());
+                    Assert.AreEqual(AT4TasksListA.ToString(), newTasksListA.ToString());
 
-                    BinaryFiles.Models.TaskList newTasksListB = new("dummy desc");
+                    TaskManagement.Models.TaskList newTasksListB = new("dummy desc");
                     newTasksListB.LoadFrom(reader);
-                    Assert.AreEqual(TasksListB.ToString(), newTasksListB.ToString());
+                    Assert.AreEqual(AT4TasksListB.ToString(), newTasksListB.ToString());
                 }
             }
         }
@@ -194,15 +338,21 @@ namespace UnitTests
         /// Test binary save and load of a TaskCollection.
         /// </summary>
         [TestMethod]
-        public void TestBinarySaveAndLoadTaskCollection()
+        public async System.Threading.Tasks.Task TestBinarySaveAndLoadTaskCollection()
         {
+            String testBinarySaveFilename = "UnitTestSaveFile.bin";
+
             // TaskCollections take care of their own binary reader and
             // writer so testing them is quite mindless.
-            TasksCollection.Save();
+            await AT4TasksCollection.Save(testBinarySaveFilename);
+            
+            
             TaskCollection newTasksCollection = new();
-            newTasksCollection.Load();
+            newTasksCollection.Load(testBinarySaveFilename);
 
-            Assert.AreEqual(TasksCollection.ToString(), newTasksCollection.ToString());
+            Assert.AreEqual(AT4TasksCollection.ToString(), newTasksCollection.ToString());
         }
+
+        #endregion
     }
 }
