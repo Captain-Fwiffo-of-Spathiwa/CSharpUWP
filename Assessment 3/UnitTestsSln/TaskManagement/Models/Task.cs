@@ -29,7 +29,6 @@ namespace TaskManagement.Models
     public class Task
     {
         // -------- Assessment 1 fields ------------------------------------ //
-        private const string        DefaultDescription  = "Default Task Desc";
         protected string            Description;
         public string               Notes               = "";
         public DateTime             DateCreated;
@@ -62,6 +61,11 @@ namespace TaskManagement.Models
 
         public Task(string description)
         {
+            if (string.IsNullOrWhiteSpace(description))
+            {
+                throw new ArgumentException("Invalid description given for new Task.");
+            }
+
             SetDescription(description);
             DateCreated = DateTime.Now;
         }
@@ -76,7 +80,6 @@ namespace TaskManagement.Models
             if (string.IsNullOrWhiteSpace(description))
             {
                 System.Diagnostics.Debug.WriteLine("Error - Blank Task description given.");
-                Description = DefaultDescription;
                 return;
             }
 

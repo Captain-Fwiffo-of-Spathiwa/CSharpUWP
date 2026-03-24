@@ -4,9 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using TaskManagement.Helpers;
-using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using File = System.IO.File;
 

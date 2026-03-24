@@ -20,16 +20,16 @@ The unit tests should check that the following work as expected:
 [✓] Deleting tasks from a list, including emptying the list. Don’t forget
     to check the task count as part of this.
 [✓] Test that repeating tasks repeat correctly.
-[] Test that habits correctly count completions.
-[] Test the percentage complete for projects.
+[✓] Test that habits correctly count completions.
+[✓] Test the percentage complete for projects.
 
 The unit tests should check that the app handles the following errors:
 
-[] Settings the task name to be blank.
-[] Setting the list name to be blank.
-[] Placing a repeating task in a project.
-[] Placing a habit in a project.
-[] A repeating task with incomplete information (eg. Missing schedule)
+[✓] Settings the task name to be blank.
+[✓] Setting the list name to be blank.
+[✓] Placing a repeating task in a project.
+[✓] Placing a habit in a project.
+[✓] A repeating task with incomplete information (eg. Missing schedule)
 
 */
 
@@ -43,6 +43,7 @@ namespace UnitTests
     /// 
     /// Changelog:
     /// ----------
+    /// 24/03/26: Fix RepeatingTask completion timings.
     /// 23/03/26: Collection, List, and Task tests added. Fixed TestSaveAndLoadTaskCollection().
     /// 16/03/06: Binary save and load tests added.
     /// </summary>
@@ -72,8 +73,8 @@ namespace UnitTests
 
         #region Assessment 4 test members
 
-        TaskManagement.Models.TaskList AT4TasksListA;
-        TaskManagement.Models.TaskList AT4TasksListB;
+        TaskManagement.Models.TaskList       AT4TasksListA;
+        TaskManagement.Models.TaskList       AT4TasksListB;
         TaskManagement.Models.TaskCollection AT4TasksCollection;
 
         #endregion
@@ -108,7 +109,7 @@ namespace UnitTests
             TaskB = new("Buy dogs");
             RepTaskA = new("Tend to cats", DateTime.Now, TaskManagement.Models.Frequency.Weekly);
             RepTaskB = new("Tend to dogs", DateTime.Now, TaskManagement.Models.Frequency.Daily);
-            HabitA = new("Pat dogs", DateTime.Now, TaskManagement.Models.Frequency.Daily, 0);
+            HabitA = new("Pat dogs", DateTime.Now, TaskManagement.Models.Frequency.Daily, 5);
             HabitB = new("Ignore cats", DateTime.Now, TaskManagement.Models.Frequency.Daily, 10);
 
 
@@ -148,6 +149,9 @@ namespace UnitTests
 
             #endregion
         }
+
+
+        #region Unit testing
 
         /// <summary>
         /// Test adding new TaskLists to a Collection.
@@ -323,7 +327,7 @@ namespace UnitTests
              * -----------------------------------------------------------*/
 
             // Setup
-            String tomorrow = (DateTime.Now + TimeSpan.FromDays(1)).ToShortDateString();  // Again with your ruining of const, C#.
+            String tomorrow = (DateTime.Now + TimeSpan.FromDays(1)).ToShortDateString();
 
             // Check recently overdue tasks
             // Daily 
@@ -411,57 +415,213 @@ namespace UnitTests
         }
 
         /// <summary>
-        /// Test that Habits correctly count completions.
+        /// Test that Habits correctly count completions and un-completions.
         /// </summary>
         [TestMethod]
         public void TestHabitsCountCompletions()
-        { Assert.Fail(); }
+        {
+            // Task due today with no streak
+            {
+                int startingStreak = 0;
+                int expectedStreak = 1;
+                Habit dailyNewStreak = new("dailyNewStreak", DateTime.Now, TaskManagement.Models.Frequency.Daily, startingStreak);
+                dailyNewStreak.ToggleCompletion();
+                Assert.AreEqual(expectedStreak, dailyNewStreak.Streak);
+
+                // Un-complete the task and check the streak unwinds
+                dailyNewStreak.ToggleCompletion();
+                Assert.AreEqual(startingStreak, dailyNewStreak.Streak);
+            }
+
+            // Task due today with a running streak
+            {
+                int startingStreak = 2;
+                int expectedStreak = 3;
+                Habit dailyContinuedStreak = new("dailyContinuedStreak", DateTime.Now, TaskManagement.Models.Frequency.Daily, startingStreak);
+                dailyContinuedStreak.ToggleCompletion();
+                Assert.AreEqual(expectedStreak, dailyContinuedStreak.Streak);
+
+                dailyContinuedStreak.ToggleCompletion();
+                Assert.AreEqual(startingStreak, dailyContinuedStreak.Streak);
+            }
+
+            // Overdue daily task that had a streak
+            {
+                int startingStreak = 3;
+                int expectedStreak = 1;
+                Habit dailyBreakingStreak = new("dailyBreakingStreak", DateTime.Now - TimeSpan.FromDays(3), TaskManagement.Models.Frequency.Daily, startingStreak);
+                dailyBreakingStreak.ToggleCompletion();
+                Assert.AreEqual(expectedStreak, dailyBreakingStreak.Streak);
+
+                dailyBreakingStreak.ToggleCompletion();
+                Assert.AreEqual(0, dailyBreakingStreak.Streak); // Ensure un-completing doesn't return a streak that was already broken
+            }
+
+            // Task due this week with no streak
+            {
+                int startingStreak = 0;
+                int expectedStreak = 1;
+                Habit weeklyNewStreak = new("weeklyNewStreak", DateTime.Now + TimeSpan.FromDays(2), TaskManagement.Models.Frequency.Weekly, startingStreak);
+                weeklyNewStreak.ToggleCompletion();
+                Assert.AreEqual(expectedStreak, weeklyNewStreak.Streak);
+
+                weeklyNewStreak.ToggleCompletion();
+                Assert.AreEqual(startingStreak, weeklyNewStreak.Streak);
+            }
+
+            // Task due this week with a running streak
+            {
+                int startingStreak = 17;
+                int expectedStreak = 18;
+                Habit weeklyContinuedStreak = new("weeklyContinuedStreak", DateTime.Now + TimeSpan.FromDays(4), TaskManagement.Models.Frequency.Weekly, startingStreak);
+                weeklyContinuedStreak.ToggleCompletion();
+                Assert.AreEqual(expectedStreak, weeklyContinuedStreak.Streak);
+
+                weeklyContinuedStreak.ToggleCompletion();
+                Assert.AreEqual(startingStreak, weeklyContinuedStreak.Streak);
+            }
+
+            // Overdue weekly task that had a streak
+            {
+                int startingStreak = 99;
+                int expectedStreak = 1;
+                Habit weeklyBreakingStreak = new("weeklyBreakingStreak", DateTime.Now - TimeSpan.FromDays(3), TaskManagement.Models.Frequency.Weekly, startingStreak);
+                weeklyBreakingStreak.ToggleCompletion();
+                Assert.AreEqual(expectedStreak, weeklyBreakingStreak.Streak);
+
+                weeklyBreakingStreak.ToggleCompletion();
+                Assert.AreEqual(0, weeklyBreakingStreak.Streak);
+            }
+        }
 
         [TestMethod]
         public void TestProjectsCompletePercentage()
-        { Assert.Fail(); }
+        { 
+            // No complete tasks
+            Project testProject = new("testProject");
+            testProject.AddTask(TaskA);
+            testProject.AddTask(TaskB);
+            Assert.AreEqual((int)testProject.PercentComplete, 0);
 
+            // 1 of 2 tasks complete
+            TaskA.ToggleCompletion();
+            Assert.AreEqual((int)testProject.PercentComplete, 50);
+
+            // Adding 2 more competed tasks
+            Task newTaskA = new("pat the plants");
+            Task newTaskB = new("water the dogs");
+            newTaskA.ToggleCompletion();
+            newTaskB.ToggleCompletion();
+            testProject.AddTask(newTaskA);
+            testProject.AddTask(newTaskB);
+            Assert.AreEqual((int)testProject.PercentComplete, 75);
+
+            // Un-completing those added tasks
+            newTaskA.ToggleCompletion();
+            newTaskB.ToggleCompletion();
+            Assert.AreEqual((int)testProject.PercentComplete, 25);
+        }
+
+        #endregion
+
+
+        #region Error testing
+
+        /// <summary>
+        /// Test the app handles setting a Task name to be blank.
+        /// </summary>
         [TestMethod]
         public void TestBadTaskName()
-        { Assert.Fail(); }
+        {
+            // Creating a Task with a bad name
+            try
+            {
+                Task task1 = new("");
+            }
+            catch (Exception ex)
+            {
+                Assert.AreEqual("Invalid description given for new Task.", ex.Message);
+            }
 
+            // Setting a bad name on an existing Task
+            Task task2 = new("task2");
+            task2.SetDescription("");
+            Assert.AreEqual("task2", task2.GetDescription());
+        }
+
+        /// <summary>
+        /// Test the app handles setting a TaskList name to be blank.
+        /// </summary>
         [TestMethod]
         public void TestBadListName()
-        { Assert.Fail(); }
+        {
+            // Creating a TaskList with a bad name
+            try
+            {
+                TaskList tasklist1 = new("");
+            }
+            catch (Exception ex)
+            {
+                Assert.AreEqual("Invalid description given for new TaskList.", ex.Message);
+            }
 
+            // Setting a bad name on an existing TaskList
+            TaskList tasklist2 = new("tasklist2");
+            tasklist2.SetName("");
+            Assert.AreEqual("tasklist2", tasklist2.GetName());
+        }
+
+        /// <summary>
+        /// Test the app handles attempting to place RepeatingTasks in a Project.
+        /// </summary>
         [TestMethod]
         public void TestAddRepeatingTaskToProject()
-        { Assert.Fail(); }
+        {
+            Project testRepTasksProject = new("testRepTasksProject");
+            Assert.AreEqual(0, testRepTasksProject.TotalTasksCount);
 
+            testRepTasksProject.AddTask(RepTaskA);
+            testRepTasksProject.AddTask(RepTaskB);
+            Assert.AreEqual(0, testRepTasksProject.TotalTasksCount);
+        }
+
+        /// <summary>
+        /// Test the app handles attempting to place Habits in a Project.
+        /// </summary>
         [TestMethod]
         public void TestAddHabitToProject()
-        { Assert.Fail(); }
+        {
+            Project testHabitsProject = new("testHabitsProject");
+            Assert.AreEqual(0, testHabitsProject.TotalTasksCount);
 
+            testHabitsProject.AddTask(HabitA);
+            testHabitsProject.AddTask(HabitB);
+            Assert.AreEqual(0, testHabitsProject.TotalTasksCount);
+        }
+
+        /// <summary>
+        /// Test the app handles a a RepeatingTask with incomplete information.
+        /// </summary>
         [TestMethod]
         public void TestRepeatingTaskWithMissingInformation()
-        { Assert.Fail(); }
+        {
+            // RepeatingTasks can't be constructed with missing DueDate or
+            // Frequency, but we can test a missing description.
+            try
+            {
+                RepeatingTask repeatingTask1 = new("", DateTime.Now, Frequency.Daily);
+            }
+            catch (Exception ex)
+            {
+                Assert.AreEqual("Invalid description given for new Task.", ex.Message);
+            }
 
+            RepeatingTask repeatingTask = new("repeatingTask", DateTime.Now, Frequency.Daily);
+            repeatingTask.SetDescription("");
+            Assert.AreEqual("repeatingTask", repeatingTask.GetDescription());
+        }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        #endregion
 
 
         #region Assessment 4 Tests

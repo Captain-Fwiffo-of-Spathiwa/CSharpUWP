@@ -15,7 +15,7 @@ namespace TaskManagement.Models
     *  • Repeating tasks are not allowed in projects.
     */
 
-    internal class Project : TaskList
+    public class Project : TaskList
     {
         public float PercentComplete => (100.0f * (1.0f - (float)IncompleteTasksCount / (float)TotalTasksCount));
 

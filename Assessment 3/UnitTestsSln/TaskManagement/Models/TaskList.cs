@@ -37,6 +37,11 @@ namespace TaskManagement.Models
 
         public TaskList(string name)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("Invalid description given for new TaskList.");
+            }
+
             SetName(name);
         }
 
@@ -50,7 +55,6 @@ namespace TaskManagement.Models
             if (string.IsNullOrWhiteSpace(name))
             {
                 System.Diagnostics.Debug.WriteLine("Error - Blank TaskList name given.");
-                Name = DefaultName;
                 return;
             }
 

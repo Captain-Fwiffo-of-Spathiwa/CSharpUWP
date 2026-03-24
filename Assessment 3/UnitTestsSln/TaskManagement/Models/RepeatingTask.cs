@@ -69,11 +69,12 @@ namespace TaskManagement.Models
 
                 // For weekly tasks, find the due date window that wraps today
                 int daysUntilDue = (int)(DueDate.Value - DateTime.Today).TotalDays;
+
                 int daysInWeek = 7;
                 DateTime datePresentWindowWouldEnd = DateTime.Today + TimeSpan.FromDays(daysUntilDue % daysInWeek);
 
                 // Was the last completion date inside that window?
-                return (int)((datePresentWindowWouldEnd - DateLastCompleted.Value).TotalDays) < daysInWeek;
+                return (int)((datePresentWindowWouldEnd - DateLastCompleted.Value.Date).TotalDays) < daysInWeek;
             }
         }
 

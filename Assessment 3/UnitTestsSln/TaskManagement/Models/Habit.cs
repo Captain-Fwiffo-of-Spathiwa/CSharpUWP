@@ -47,8 +47,12 @@ namespace TaskManagement.Models
              * -----------------------------------------------------------*/ 
 
             Streak = dummyStreak;
-            DateLastCompleted = dueDate - TimeSpan.FromDays(Frequency == Frequency.Daily ? 1 : 7);
-            LastDueDateSatisfied = dueDate - TimeSpan.FromDays(Frequency == Frequency.Daily ? 1 : 7);
+
+            if (dummyStreak > 0)
+            {
+                DateLastCompleted = dueDate - TimeSpan.FromDays(Frequency == Frequency.Daily ? 1 : 7);
+                LastDueDateSatisfied = dueDate - TimeSpan.FromDays(Frequency == Frequency.Daily ? 1 : 7);
+            }
         }
 
         public override void ToggleCompletion()
@@ -56,14 +60,19 @@ namespace TaskManagement.Models
             // Toggle the task's completion status via the parent
             base.ToggleCompletion();
 
-            DateTime previousDueDate = (DateTime)DueDate - TimeSpan.FromDays(Frequency == Frequency.Daily ? 1 : 7);
+            DateTime previousDueDate = GetEndOfPreviousDueDateWindow();
 
-            // If we have just completed a task, we're still on our streak
-            // *as long as* the last due date satisfied was in the previous
-            // due date cycle, and not far in the past.
+            // See if a completed task continues the streak
             if (IsComplete)
             {
-                if (LastDueDateSatisfied == previousDueDate)
+                /* --------------------------------------------------------
+                 *  If the Habit has just been completed, see if the last
+                 *  due date that was satsified is the same as due date of
+                 *  the window that was 1 window in the past.
+                 *  If it is, the streak continues.
+                 * -------------------------------------------------------*/
+
+                if (LastDueDateSatisfied != null && LastDueDateSatisfied.Value.Date == previousDueDate)
                 {
                     ++Streak;
                 }
@@ -71,11 +80,10 @@ namespace TaskManagement.Models
                 {
                     Streak = 1;
                 }
-
+                
                 LastDueDateSatisfied = DueDate;
             }
-            // If we have un-completed a task that had been completed, we need
-            // to wind back the streak counter and the tracked due date.
+            // Else, an un-completed task needs to unwind its streak
             else
             {
                 --Streak;
@@ -89,6 +97,28 @@ namespace TaskManagement.Models
                     LastDueDateSatisfied = null;
                 }
             }
+        }
+
+        private DateTime GetEndOfPreviousDueDateWindow()
+        {
+            if (Frequency == Frequency.Daily)
+            {
+                return DateTime.Today - TimeSpan.FromDays(1);
+            }
+
+            int daysInAWeek = 7;
+            int daysUntilEndOfWindow;
+            if (DueDate.Value.Date >= DateTime.Today)
+            {
+                daysUntilEndOfWindow = (int)(DueDate.Value.Date - DateTime.Today).TotalDays % daysInAWeek;
+            }
+            else
+            {
+                int daysSinceStartOfWindow = (int)(DateTime.Today - DueDate.Value.Date).TotalDays % daysInAWeek;
+                daysUntilEndOfWindow = 7 - daysSinceStartOfWindow;
+            }
+
+            return DateTime.Today + TimeSpan.FromDays(daysUntilEndOfWindow) - TimeSpan.FromDays(daysInAWeek); ;
         }
 
         // Assessment 4 addition

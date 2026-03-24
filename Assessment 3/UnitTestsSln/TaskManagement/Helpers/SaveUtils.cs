@@ -28,25 +28,21 @@ namespace TaskManagement.Helpers
         static public void SaveAndPrintInt(BinaryWriter writer, int value)
         {
             writer.Write(value);
-            Debug.WriteLine($"Wrote to binary: {value}");
         }
 
         static public void SaveAndPrintLong(BinaryWriter writer, long value)
         {
             writer.Write(value);
-            Debug.WriteLine($"Wrote to binary: {value}");
         }
 
         static public void SaveAndPrintBool(BinaryWriter writer, bool value)
         {
             writer.Write(value);
-            Debug.WriteLine($"Wrote to binary: {value}");
         }
 
         static public void SaveAndPrintString(BinaryWriter writer, string value)
         {
             writer.Write(value);
-            Debug.WriteLine($"Wrote to binary: {value}");
         }
 
 
@@ -57,28 +53,24 @@ namespace TaskManagement.Helpers
         static public int LoadAndPrintInt(BinaryReader reader)
         {
             var value = reader.ReadInt32();
-            Debug.WriteLine($"Read int from binary: {value}");
             return value;
         }
 
         static public long LoadAndPrintLong(BinaryReader reader)
         {
             var value = reader.ReadInt64();
-            Debug.WriteLine($"Read long from binary: {value}");
             return value;
         }
 
         static public bool LoadAndPrintBool(BinaryReader reader)
         {
             var value = reader.ReadBoolean();
-            Debug.WriteLine($"Read bool from binary: {value}");
             return value;
         }
 
         static public string LoadAndPrintString(BinaryReader reader)
         {
             var value = reader.ReadString();
-            Debug.WriteLine($"Read string from binary: {value}");
             return value;
         }
     }

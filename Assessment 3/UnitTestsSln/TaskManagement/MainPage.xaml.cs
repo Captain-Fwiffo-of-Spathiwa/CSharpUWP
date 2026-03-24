@@ -233,19 +233,19 @@ namespace TaskManagement
             taskCollection.AddTaskList(taskList0);
             taskCollection.AddTaskList(taskList1);
 
-            Debug.WriteLine("\n Collection before Save(): \n");
+            Debug.WriteLine("\nCollection before Save(): \n");
             taskCollection.PrintAllTaskListTasks();
 
             taskCollection.Save(BinarySaveFilename);      // Save it
-            Debug.WriteLine("\n Collection after Save(): \n");
+            Debug.WriteLine("\nCollection after Save(): \n");
             taskCollection.PrintAllTaskListTasks();
 
             taskCollection = new();     // Nuke it
-            Debug.WriteLine("\n Collection after nuking: \n");
+            Debug.WriteLine("\nCollection after nuking: \n");
             taskCollection.PrintAllTaskListTasks();
 
             taskCollection.Load(BinarySaveFilename);      // Reload it
-            Debug.WriteLine("\n Collection after Load(): \n");
+            Debug.WriteLine("\nCollection after Load(): \n");
             taskCollection.PrintAllTaskListTasks();
         }
     }
