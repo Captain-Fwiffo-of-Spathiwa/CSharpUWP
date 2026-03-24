@@ -150,8 +150,7 @@ namespace UnitTests
         }
 
         /// <summary>
-        /// Test collection addition of an empty list, populated lists, and a
-        /// list with tasks added after the list was put in a collection.
+        /// Test adding new TaskLists to a Collection.
         /// </summary>
         [TestMethod]
         public void TestAddNewListToCollection()
@@ -159,12 +158,15 @@ namespace UnitTests
             Assert.AreEqual(0, AT3TasksCollection.TotalTasksCount);
             Assert.AreEqual("\n ------------------------ \n", AT3TasksCollection.ToString());
 
+            // Empty list
             AT3TasksCollection.AddTaskList(AT3TasksListA);
             Assert.AreEqual(0, AT3TasksCollection.TotalTasksCount);
 
+            // Populated list
             AT3TasksListA.AddTask(TaskA);
             Assert.AreEqual(1, AT3TasksCollection.TotalTasksCount);
 
+            // Collection sees updates to the added TaskList
             AT3TasksListB.AddTask(TaskA);
             AT3TasksListB.AddTask(HabitA);
             AT3TasksCollection.AddTaskList(AT3TasksListB);
@@ -175,19 +177,22 @@ namespace UnitTests
         }
 
         /// <summary>
-        /// Test adding singles, duplicates, subtyped Tasks to a TaskList.
+        /// Test adding Tasks to a TaskList.
         /// </summary>
         [TestMethod]
         public void TestAddTasksToList()
         {
             Assert.AreEqual(0, AT3TasksListA.TotalTasksCount);
 
+            // Add Task
             AT3TasksListA.AddTask(TaskA);
             Assert.AreEqual(1, AT3TasksListA.TotalTasksCount);
 
+            // Add duplicate Task
             AT3TasksListA.AddTask(TaskA);
             Assert.AreEqual(2, AT3TasksListA.TotalTasksCount);
 
+            // Add Task derived types
             AT3TasksListA.AddTask(RepTaskA);
             AT3TasksListA.AddTask(HabitB);
             Assert.AreEqual(4, AT3TasksListA.TotalTasksCount);
@@ -197,14 +202,14 @@ namespace UnitTests
         }
 
         /// <summary>
-        /// Test completing tasks individually and plus a TaskList's
-        /// recognition of completed Tasks.
+        /// Test completing Tasks.
         /// </summary>
         [TestMethod]
         public void TestCompleteTasks()
         {
             Assert.AreEqual(0, AT3TasksListA.IncompleteTasksCount);
 
+            // Setup
             AT3TasksListA.AddTask(TaskA);
             AT3TasksListA.AddTask(TaskB);
             AT3TasksListA.AddTask(RepTaskA);
@@ -219,28 +224,32 @@ namespace UnitTests
             Assert.IsFalse(HabitB.IsComplete);
             Assert.AreEqual(6, AT3TasksListA.IncompleteTasksCount);
             Assert.AreEqual(6, AT3TasksListA.TotalTasksCount);
-
             TaskA.ToggleCompletion();
             RepTaskA.ToggleCompletion();
+
+            // Check individial completion
             Assert.IsTrue(TaskA.IsComplete);
             Assert.IsTrue(RepTaskA.IsComplete);
+
+            // Check TaskList counts for completion
             Assert.AreEqual(4, AT3TasksListA.IncompleteTasksCount);
             Assert.AreEqual(6, AT3TasksListA.TotalTasksCount);
+            //Assert.AreEqual(2, AT3TasksListA.TotalTasksCount - AT3TasksListA.IncompleteTasksCount);
 
+            // Perform operation on only complete Tasks and check result
             AT3TasksListA.ClearCompletedTasks();
             Assert.AreEqual(4, AT3TasksListA.TotalTasksCount);
         }
 
         /// <summary>
-        /// Test setting complete tasks as incomplete individually, plus
-        /// the TaskList's abiltiy to not recognise and not remove incomplete
-        /// Tasks.
+        /// Test setting complete tasks as incomplete.
         /// </summary>
         [TestMethod]
         public void TestSetTaskIncomplete()
         {
             Assert.AreEqual(0, AT3TasksListA.IncompleteTasksCount);
 
+            // Setup
             AT3TasksListA.AddTask(TaskA);
             AT3TasksListA.AddTask(RepTaskA);
             AT3TasksListA.AddTask(HabitA);
@@ -250,14 +259,18 @@ namespace UnitTests
             Assert.IsTrue(TaskA.IsComplete);
             Assert.IsTrue(RepTaskA.IsComplete);
             Assert.IsTrue(HabitA.IsComplete);
-
             TaskA.ToggleCompletion();
             RepTaskA.ToggleCompletion();
+
+            // Check individual incompletion
             Assert.IsFalse(TaskA.IsComplete);
             Assert.IsFalse(RepTaskA.IsComplete);
-            Assert.AreEqual(2, AT3TasksListA.IncompleteTasksCount);
-            Assert.AreEqual(3, AT3TasksListA.TotalTasksCount);
 
+            // Check TaskList counts
+            Assert.AreEqual(2, AT3TasksListA.IncompleteTasksCount);
+
+            // Perform operation that ignores only incomplete Tasks and check result
+            Assert.AreEqual(3, AT3TasksListA.TotalTasksCount);
             AT3TasksListA.ClearCompletedTasks();
             Assert.AreEqual(2, AT3TasksListA.TotalTasksCount);
         }
@@ -296,69 +309,110 @@ namespace UnitTests
         }
 
         /// <summary>
-        /// Test that a RepeatingTask repeats; that is, it updates its DueDate
-        /// if the present day is inside its next frequency window.
+        /// Test that RepeatingTasks repeat correctly.
         /// </summary>
         [TestMethod]
         public void TestRepeatingTasksRepeat()
         {
-            int daysInPast = 11;    
-            int daysInFuture = 12;
+            /* ------------------------------------------------------------ 
+             *  A RepeatingTask repeats by updating its DueDate in
+             *  response to completion and its existing DueDate. If the
+             *  RepeatingTask's existing due date window wraps the present
+             *  day or is in the past, that DueDate is updated to bookend
+             *  the next due date window in the future.
+             * -----------------------------------------------------------*/
 
-            RepeatingTask pastRepDailyTask = new RepeatingTask("pastRepDailyTask", DateTime.Now - TimeSpan.FromDays(daysInPast), Frequency.Daily);
-            RepeatingTask pastRepWeeklyTask = new RepeatingTask("pastRepWeeklyTask", DateTime.Now - TimeSpan.FromDays(daysInPast), Frequency.Weekly);
-            RepeatingTask presentRepDailyTask = new RepeatingTask("presentRepDailyTask", DateTime.Now, Frequency.Daily);
-            RepeatingTask presentRepWeeklyTask = new RepeatingTask("presenttRepWeeklyTask", DateTime.Now, Frequency.Weekly);
-            RepeatingTask futureRepDailyTask = new RepeatingTask("futureRepDailyTask", DateTime.Now + TimeSpan.FromDays(daysInFuture), Frequency.Daily);
-            RepeatingTask futureRepWeeklyTask = new RepeatingTask("futureRepWeeklyTask", DateTime.Now + TimeSpan.FromDays(daysInFuture), Frequency.Weekly);
+            // Setup
+            String tomorrow = (DateTime.Now + TimeSpan.FromDays(1)).ToShortDateString();  // Again with your ruining of const, C#.
 
-            Assert.IsFalse(pastRepDailyTask.IsComplete);
-            Assert.IsFalse(pastRepWeeklyTask.IsComplete);
-            Assert.IsFalse(presentRepDailyTask.IsComplete);
-            Assert.IsFalse(presentRepWeeklyTask.IsComplete);
-            Assert.IsFalse(futureRepDailyTask.IsComplete);
-            Assert.IsFalse(futureRepWeeklyTask.IsComplete);
+            // Check recently overdue tasks
+            // Daily 
+            {
+                int numDaysAgoForYesterday = 1;
+                RepeatingTask recentlyOverdueDailyTask = new RepeatingTask("recentlyOverdueDailyTask", DateTime.Now - TimeSpan.FromDays(numDaysAgoForYesterday), Frequency.Daily);
+                recentlyOverdueDailyTask.ToggleCompletion();
+                Assert.IsTrue(recentlyOverdueDailyTask.IsComplete);
+                Assert.AreEqual(tomorrow, recentlyOverdueDailyTask.DueDate.Value.ToShortDateString());
+            }
+            // Weekly
+            {
+                int numDaysAgoForThisWeek = 4;  // A value that's between 0 and 1 weeks ago
+                RepeatingTask recentlyOverdueWeeklyTask = new RepeatingTask("recentlyOverdueWeeklyTask", DateTime.Now - TimeSpan.FromDays(numDaysAgoForThisWeek), Frequency.Weekly);
+                recentlyOverdueWeeklyTask.ToggleCompletion();
+                Assert.IsTrue(recentlyOverdueWeeklyTask.IsComplete);
+                int numDaysIn2Weeks = 14;
+                String nextWeeklyDueDate = (DateTime.Now + TimeSpan.FromDays(numDaysIn2Weeks - numDaysAgoForThisWeek)).ToShortDateString();
+                Assert.AreEqual(nextWeeklyDueDate, recentlyOverdueWeeklyTask.DueDate.Value.ToShortDateString());
+            }
 
-            pastRepDailyTask.ToggleCompletion();
-            pastRepWeeklyTask.ToggleCompletion();
-            presentRepDailyTask.ToggleCompletion();
-            presentRepWeeklyTask.ToggleCompletion();
-            futureRepDailyTask.ToggleCompletion();
-            futureRepWeeklyTask.ToggleCompletion();
+            // Check long overdue tasks
+            // Daily
+            {
+                int numDaysAgoForDistantDay = 3;
+                RepeatingTask longOverdueDailyTask = new RepeatingTask("longOverdueDueDailyTask", DateTime.Now - TimeSpan.FromDays(numDaysAgoForDistantDay), Frequency.Daily);
+                longOverdueDailyTask.ToggleCompletion();
+                Assert.IsTrue(longOverdueDailyTask.IsComplete);
+                Assert.AreEqual(tomorrow, longOverdueDailyTask.DueDate.Value.ToShortDateString());
+            }
+            // Weekly
+            {
+                int numDaysAgoForDistantWeek = 11;  // A value that's between 1 and 2 weeks ago
+                RepeatingTask longOverdueWeeklyTask = new RepeatingTask("longOverdueWeeklyTask", DateTime.Now - TimeSpan.FromDays(numDaysAgoForDistantWeek), Frequency.Weekly);
+                longOverdueWeeklyTask.ToggleCompletion();
+                Assert.IsTrue(longOverdueWeeklyTask.IsComplete);
+                int daysIn3Weeks = 21;
+                String nextWeeklyDueDate = (DateTime.Now + TimeSpan.FromDays(daysIn3Weeks - numDaysAgoForDistantWeek)).ToShortDateString();
+                Assert.AreEqual(nextWeeklyDueDate, longOverdueWeeklyTask.DueDate.Value.ToShortDateString());
+            }
 
-            // Completing tasks that were due in the past will get a new due date that is at the
-            // end of the due date window that fits the present day.
-            // Eg: A weekly task made 11 days ago will get a new due date of 3 days in the future.
-            // Eg: A daily task made any time in the past will get a new due date of tomorrow.
-            String nextDailyDueDate = (DateTime.Now + TimeSpan.FromDays(1)).ToShortDateString();
-            int daysAheadForNextWeeklyDueDate = 7 - (daysInPast % 7);  // 7 - (11 % 7) == 3
-            String nextWeeklyDueDate = (DateTime.Now + TimeSpan.FromDays(daysAheadForNextWeeklyDueDate)).ToShortDateString();
-            Assert.AreEqual(nextDailyDueDate, pastRepDailyTask.DueDate.Value.ToShortDateString());
-            Assert.AreEqual(nextWeeklyDueDate, pastRepWeeklyTask.DueDate.Value.ToShortDateString());
+            // Check currently due tasks
+            // Daily
+            {
+                int numDaysAheadForTomorrow = 1;
+                RepeatingTask currentlyDueDailyTask = new RepeatingTask("currentlyDueDailyTask", DateTime.Now + TimeSpan.FromDays(numDaysAheadForTomorrow), Frequency.Daily);
+                currentlyDueDailyTask.ToggleCompletion();
+                Assert.IsTrue(currentlyDueDailyTask.IsComplete);
+                Assert.AreEqual(tomorrow, currentlyDueDailyTask.DueDate.Value.ToShortDateString());
+            }
+            // Weekly
+            {
+                int numDaysAheadForThisWeek = 5;    // A value that's between 0 and 1 weeks in the future
+                RepeatingTask currentlyDueWeeklyTask = new RepeatingTask("currentlyDueWeeklyTask", DateTime.Now + TimeSpan.FromDays(numDaysAheadForThisWeek), Frequency.Weekly);
+                currentlyDueWeeklyTask.ToggleCompletion();
+                Assert.IsTrue(currentlyDueWeeklyTask.IsComplete);
+                int daysIn1Week = 7;
+                String nextWeeklyDueDate = (DateTime.Now + TimeSpan.FromDays(daysIn1Week + numDaysAheadForThisWeek)).ToShortDateString();
+                Assert.AreEqual(nextWeeklyDueDate, currentlyDueWeeklyTask.DueDate.Value.ToShortDateString());
+            }
 
-            // Completing tasks that were due today will get a new due date for the due date window
-            // that starts today.
-            nextWeeklyDueDate = (DateTime.Now + TimeSpan.FromDays(7)).ToShortDateString();
-            Assert.AreEqual(nextDailyDueDate, presentRepDailyTask.DueDate.Value.ToShortDateString());
-            Assert.AreEqual(nextWeeklyDueDate, presentRepWeeklyTask.DueDate.Value.ToShortDateString());
+            // Check eventually due tasks
+            // Daily
+            {
+                int numDaysAheadForDistantDay = 4;
+                RepeatingTask eventuallyDueDailyTask = new RepeatingTask("eventuallyDueDailyTask", DateTime.Now + TimeSpan.FromDays(numDaysAheadForDistantDay), Frequency.Daily);
+                eventuallyDueDailyTask.ToggleCompletion();
+                Assert.IsTrue(eventuallyDueDailyTask.IsComplete);
 
-            // Completing tasks due in the future will not get a new due date until the present date
-            // passes that future due date.
-            String nextFutureDailyDueDate = (DateTime.Now + TimeSpan.FromDays(daysInFuture)).ToShortDateString();
-            String nextFutureWeeklyDueDate = (DateTime.Now + TimeSpan.FromDays(daysInFuture)).ToShortDateString();
-            Assert.AreEqual(nextFutureDailyDueDate, futureRepDailyTask.DueDate.Value.ToShortDateString());
-            Assert.AreEqual(nextFutureWeeklyDueDate, futureRepWeeklyTask.DueDate.Value.ToShortDateString());
+                // Ensure our distant due task wasn't set to be due tomorrow
+                String eventualDailyDueDate = (DateTime.Now + TimeSpan.FromDays(numDaysAheadForDistantDay)).ToShortDateString();
+                Assert.AreEqual(eventualDailyDueDate, eventuallyDueDailyTask.DueDate.Value.ToShortDateString());
+            }
+            // Weekly
+            {
+                int numDaysAheadForDistantWeek = 12;    // A value that's between 1 and 2 weeks in the future
+                RepeatingTask eventuallyDueWeeklyTask = new RepeatingTask("eventuallyDueWeeklyTask", DateTime.Now + TimeSpan.FromDays(numDaysAheadForDistantWeek), Frequency.Weekly);
+                eventuallyDueWeeklyTask.ToggleCompletion();
+                Assert.IsTrue(eventuallyDueWeeklyTask.IsComplete);
 
-            // Ensure RepeatedTasks completed today report as complete since today is inside or
-            // before the next due date window.
-            Assert.IsTrue(pastRepDailyTask.IsComplete);
-            Assert.IsTrue(pastRepWeeklyTask.IsComplete);
-            Assert.IsTrue(presentRepDailyTask.IsComplete);
-            Assert.IsTrue(presentRepWeeklyTask.IsComplete);
-            Assert.IsTrue(futureRepDailyTask.IsComplete);
-            Assert.IsTrue(futureRepWeeklyTask.IsComplete);
+                // Ensure our distant due task wasn't set to be due next week
+                String eventualWeeklyDueDate = (DateTime.Now + TimeSpan.FromDays(numDaysAheadForDistantWeek)).ToShortDateString();
+                Assert.AreEqual(eventualWeeklyDueDate, eventuallyDueWeeklyTask.DueDate.Value.ToShortDateString());
+            }
         }
 
+        /// <summary>
+        /// Test that Habits correctly count completions.
+        /// </summary>
         [TestMethod]
         public void TestHabitsCountCompletions()
         { Assert.Fail(); }
