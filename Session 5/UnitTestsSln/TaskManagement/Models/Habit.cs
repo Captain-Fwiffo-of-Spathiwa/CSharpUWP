@@ -21,7 +21,7 @@ namespace TaskManagement.Models
         public int              Streak { get; private set; } = 0;
         private DateTime?       LastDueDateSatisfied = null;
 
-        public Habit(string description, DateTime dueDate, Frequency frequency, int dummyStreak)
+        public Habit(string description, DateTime dueDate, Frequency frequency, int dummyStreak = 0)
             : base(description, dueDate, frequency)
         { 
             /* ------------------------------------------------------------

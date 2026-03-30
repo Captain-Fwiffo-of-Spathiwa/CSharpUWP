@@ -5,33 +5,8 @@ using System.Text;
 using Windows.Storage;
 using TaskManagement.Helpers;
 using TaskManagement.Models;
-using Windows.ApplicationModel.Activation;
-
-/*
-
-The unit tests should check that the following work as expected:
-
-[✓] Adding a new list to the collection.
-[✓] Adding tasks to a list. Don’t forget to check the task count.
-[✓] Completing a task. Don’t forget to check the count of complete and
-    incomplete tasks as part of this.
-[✓] Setting a task to be incomplete, Don’t forget to check the count of
-    complete and incomplete tasks as part of this.
-[✓] Deleting tasks from a list, including emptying the list. Don’t forget
-    to check the task count as part of this.
-[✓] Test that repeating tasks repeat correctly.
-[✓] Test that habits correctly count completions.
-[✓] Test the percentage complete for projects.
-
-The unit tests should check that the app handles the following errors:
-
-[✓] Settings the task name to be blank.
-[✓] Setting the list name to be blank.
-[✓] Placing a repeating task in a project.
-[✓] Placing a habit in a project.
-[✓] A repeating task with incomplete information (eg. Missing schedule)
-
-*/
+using System.Collections.Generic;
+using System.Linq;
 
 
 
@@ -50,22 +25,22 @@ namespace UnitTests
     [TestClass]
     public class UnitTests
     {
-        string        TestBinarySaveFilename;
+        string TestBinarySaveFilename;
         StorageFolder TestFolder;
-        StorageFile   TestFile;
+        StorageFile TestFile;
 
-        TaskManagement.Models.Task          TaskA;
-        TaskManagement.Models.Task          TaskB;
+        TaskManagement.Models.Task TaskA;
+        TaskManagement.Models.Task TaskB;
         TaskManagement.Models.RepeatingTask RepTaskA;
         TaskManagement.Models.RepeatingTask RepTaskB;
-        TaskManagement.Models.Habit         HabitA;
-        TaskManagement.Models.Habit         HabitB;
+        TaskManagement.Models.Habit HabitA;
+        TaskManagement.Models.Habit HabitB;
 
 
         #region Assessment 3 test members
 
-        TaskManagement.Models.TaskList       AT3TasksListA;
-        TaskManagement.Models.TaskList       AT3TasksListB;
+        TaskManagement.Models.TaskList AT3TasksListA;
+        TaskManagement.Models.TaskList AT3TasksListB;
         TaskManagement.Models.TaskCollection AT3TasksCollection;
 
         #endregion
@@ -73,11 +48,42 @@ namespace UnitTests
 
         #region Assessment 4 test members
 
-        TaskManagement.Models.TaskList       AT4TasksListA;
-        TaskManagement.Models.TaskList       AT4TasksListB;
+        TaskManagement.Models.TaskList AT4TasksListA;
+        TaskManagement.Models.TaskList AT4TasksListB;
         TaskManagement.Models.TaskCollection AT4TasksCollection;
 
         #endregion
+
+
+        #region Assessment 5 test members
+
+        TaskCollection NoListsCollection;
+        TaskCollection NoTasksButListsCollection;
+        TaskCollection TasksInSomeListsCollection;
+        TaskCollection AllListsHaveTasksWithDuplicatesCollection;
+
+        TaskList EmptyListA;
+        TaskList EmptyListB;
+        //TaskList ListWithEmptyTasksA;
+        //TaskList ListWithEmptyTasksB;
+        TaskList ListWithTasksAndSubTypes;
+        TaskList ListWithTaskSubType;
+
+        Task TaskForSorting1;
+        Task TaskForSorting2;
+        Task TaskForSorting3;
+        Task TaskForSorting4;
+        Habit TaskForSorting5;
+        Habit TaskForSorting6;
+        Habit TaskForSorting7;
+        Habit TaskForSorting8;
+        RepeatingTask TaskForSorting9;
+        RepeatingTask TaskForSorting10;
+        RepeatingTask TaskForSorting11;
+        RepeatingTask TaskForSorting12;
+
+        #endregion
+
 
         /// <summary>
         /// Setup class fields used by our tests.
@@ -85,21 +91,21 @@ namespace UnitTests
         [TestInitialize]
         public async System.Threading.Tasks.Task Setup()
         {
-            /* ------------------------------------------------------------ 
-             *  A constructor could do this work too, but [TestInitialize]
-             *  means we get exceptions handled by reporting them as test
-             *  failures.
-             * -----------------------------------------------------------*/
+            /* ------------------------------------------------------------
+                A constructor could do this work too, but [TestInitialize]
+                means we get exceptions handled by reporting them as test
+                failures.
+               -----------------------------------------------------------*/
 
-            /* ------------------------------------------------------------ 
-             *  We want this file creation to be async, because the code
-             *  being tested uses async. With UnitTests, async functions
-             *  need to return a Task so that the test framework can
-             *  await/work with those Tasks properly.
-             *  
-             *  Yes, we have our own type called "Task".
-             *  That's just unfortunate.
-             * -----------------------------------------------------------*/
+            /* ------------------------------------------------------------
+                We want this file creation to be async, because the code
+                being tested uses async. With UnitTests, async functions
+                need to return a Task so that the test framework can
+                await/work with those Tasks properly.
+                
+                Yes, we have our own type called "Task".
+                That's just unfortunate.
+               -----------------------------------------------------------*/
 
             TestBinarySaveFilename = "TestBinarySaveFile.bin";
             TestFolder = ApplicationData.Current.LocalFolder;
@@ -148,6 +154,82 @@ namespace UnitTests
             Assert.AreEqual(AT4TasksCollection.IncompleteTasksCount, 6);
 
             #endregion
+
+
+            #region Assessment 5 test member setup
+
+            // Create our 12 Tasks. Make sure none use DateTime.Now for testing consistency.
+            TaskForSorting1 = new("Always bake");                                                                       // Due 1st      Created first
+            TaskForSorting1.DueDate = DateTime.Today + TimeSpan.FromDays(-1000);
+            TaskForSorting1.TaskPriority.Value = 90;
+            TaskForSorting2 = new("Bake cakes");                                                                        // Due 5th
+            TaskForSorting2.DueDate = DateTime.Today;
+            TaskForSorting2.TaskPriority.Value = 80;
+            TaskForSorting3 = new("Cakes to decorate");                                                                 // Due 6th
+            TaskForSorting3.DueDate = DateTime.Today;
+            TaskForSorting3.TaskPriority.Value = 70;
+            TaskForSorting4 = new("Decorate before eating");                                                            // Due 7th
+            TaskForSorting4.DueDate = DateTime.Today + TimeSpan.FromDays(1);
+            TaskForSorting4.TaskPriority.Value = 60;
+            TaskForSorting5 = new("Eat every week", DateTime.Today + TimeSpan.FromDays(4), Frequency.Weekly);           // Due 9th
+            TaskForSorting5.TaskPriority.Value = 50;
+            TaskForSorting6 = new("Fry the cakes", DateTime.Today + TimeSpan.FromDays(2), Frequency.Daily);             // Due 8th                      Highest priority
+            TaskForSorting6.TaskPriority.Value = 40;
+            TaskForSorting7 = new("Grate the frypans", DateTime.Today + TimeSpan.FromDays(-100), Frequency.Weekly);     // Due 2nd
+            TaskForSorting7.TaskPriority.Value = 45;
+            TaskForSorting8 = new("Heat the grater", DateTime.Today + TimeSpan.FromDays(77), Frequency.Daily);          // Due 12th
+            TaskForSorting8.TaskPriority.Value = 55;
+            TaskForSorting9 = new("Ice the heater", DateTime.Today + TimeSpan.FromDays(-88), Frequency.Weekly);         // Due 3rd
+            TaskForSorting9.TaskPriority.Value = 65;
+            TaskForSorting10 = new("Jump the Kiwi", DateTime.Today + TimeSpan.FromDays(8), Frequency.Daily);            // Due 10th
+            TaskForSorting10.TaskPriority.Value = 75;
+            TaskForSorting11 = new("Kiwi, who's that??", DateTime.Today + TimeSpan.FromDays(-8), Frequency.Weekly);     // Due 4th
+            TaskForSorting11.TaskPriority.Value = 85;
+            TaskForSorting12 = new("Quick Kiwi! Get 'im!", DateTime.Today + TimeSpan.FromDays(55), Frequency.Daily);    // Due 11th     Created last    Lowest priority
+            TaskForSorting12.TaskPriority.Value = 95;
+
+            // Make and populate 4 TaskLists
+            EmptyListA = new("EmptyListA");
+
+            EmptyListB = new("EmptyListB");
+
+            ListWithTasksAndSubTypes = new("ListWithTasksAndSubTypesA");
+            ListWithTasksAndSubTypes.AddTask(TaskForSorting1);
+            ListWithTasksAndSubTypes.AddTask(TaskForSorting2);
+            ListWithTasksAndSubTypes.AddTask(TaskForSorting3);
+            ListWithTasksAndSubTypes.AddTask(TaskForSorting4);
+            ListWithTasksAndSubTypes.AddTask(TaskForSorting5);
+            // Deliberately skip some another list will have out of order
+            ListWithTasksAndSubTypes.AddTask(TaskForSorting8);
+            ListWithTasksAndSubTypes.AddTask(TaskForSorting9);
+            ListWithTasksAndSubTypes.AddTask(TaskForSorting10);
+            ListWithTasksAndSubTypes.AddTask(TaskForSorting11);
+            ListWithTasksAndSubTypes.AddTask(TaskForSorting12);
+
+            ListWithTaskSubType = new("ListWithTasksAndSubTypesB");
+            ListWithTaskSubType.AddTask(TaskForSorting5);
+            ListWithTaskSubType.AddTask(TaskForSorting6);
+            ListWithTaskSubType.AddTask(TaskForSorting7);
+            ListWithTaskSubType.AddTask(TaskForSorting8);
+
+            // Make TaskCollections from those TaskLists with different combos
+            // of populated / not-populated.
+            NoListsCollection = new();
+
+            NoTasksButListsCollection = new();
+            NoTasksButListsCollection.AddTaskList(EmptyListA);
+            NoTasksButListsCollection.AddTaskList(EmptyListB);
+
+            TasksInSomeListsCollection = new();
+            TasksInSomeListsCollection.AddTaskList(EmptyListA);
+            TasksInSomeListsCollection.AddTaskList(ListWithTasksAndSubTypes);
+
+            AllListsHaveTasksWithDuplicatesCollection = new();
+            AllListsHaveTasksWithDuplicatesCollection.AddTaskList(ListWithTasksAndSubTypes);
+            AllListsHaveTasksWithDuplicatesCollection.AddTaskList(ListWithTaskSubType);
+
+            #endregion
+
         }
 
 
@@ -496,7 +578,7 @@ namespace UnitTests
 
         [TestMethod]
         public void TestProjectsCompletePercentage()
-        { 
+        {
             // No complete tasks
             Project testProject = new("testProject");
             testProject.AddTask(TaskA);
@@ -624,7 +706,7 @@ namespace UnitTests
         #endregion
 
 
-        #region Assessment 4 Tests
+        #region Assessment 4 Tests - Binary Files
 
         /// <summary>
         /// Test binary save and load of all Task subtypes.
@@ -658,12 +740,12 @@ namespace UnitTests
                 using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
                 {
                     /* ----------------------------------------------------
-                     *  We could binary load back into the received task
-                     *  object, but that wouldn't make for a very
-                     *  convincing test. We want a whole new object instead
-                     *  so we're sure the tested data is the loaded data.
-                     *  This means we need to know the object's subtype.
-                     * ---------------------------------------------------*/
+                        We could binary load back into the received task
+                        object, but that wouldn't make for a very smart
+                        test. We want a whole new object instead so we're
+                        sure the tested data is the loaded data. This
+                        means we need to know the object's subtype.
+                       ---------------------------------------------------*/
 
                     TaskManagement.Models.Task newTask;
                     int newTaskExpectedTypeID;
@@ -749,5 +831,338 @@ namespace UnitTests
         }
 
         #endregion
+
+
+        #region Assessment 5 Tests - Delegates
+
+        //////////////////////////////////////////////////////////////////
+        // Ctrl+M,L to un/fold. Unfold Setup() & Assessment 5 members.  //
+        //////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Test sorting TaskCollections by name.
+        /// </summary>
+        [TestMethod]
+        public void TestSortCollectionTasksByName()
+        {
+            List<Task> sortedNoLists = NoListsCollection.GetTasksSortedByName();
+            Assert.IsEmpty<Task>(sortedNoLists);
+
+            List<Task> sortedNoTasks = NoTasksButListsCollection.GetTasksSortedByName();
+            Assert.IsEmpty<Task>(sortedNoTasks);
+
+            List<Task> sortedSomeTasks = TasksInSomeListsCollection.GetTasksSortedByName();
+            Assert.AreEqual(10, sortedSomeTasks.Count);
+            Assert.AreEqual(TaskForSorting1, sortedSomeTasks[0]);
+            Assert.AreEqual(TaskForSorting2, sortedSomeTasks[1]);
+            Assert.AreEqual(TaskForSorting3, sortedSomeTasks[2]);
+            Assert.AreEqual(TaskForSorting4, sortedSomeTasks[3]);
+            Assert.AreEqual(TaskForSorting5, sortedSomeTasks[4]);
+            Assert.AreEqual(TaskForSorting8, sortedSomeTasks[5]);
+            Assert.AreEqual(TaskForSorting9, sortedSomeTasks[6]);
+            Assert.AreEqual(TaskForSorting10, sortedSomeTasks[7]);
+            Assert.AreEqual(TaskForSorting11, sortedSomeTasks[8]);
+            Assert.AreEqual(TaskForSorting12, sortedSomeTasks[9]);
+
+            // We expected the new items to appeared inserted into the sequence sorted by name
+            List<Task> sortedAllTasks = AllListsHaveTasksWithDuplicatesCollection.GetTasksSortedByName();
+            Assert.AreEqual(14, sortedAllTasks.Count);
+            Assert.AreEqual(TaskForSorting1, sortedAllTasks[0]);
+            Assert.AreEqual(TaskForSorting2, sortedAllTasks[1]);
+            Assert.AreEqual(TaskForSorting3, sortedAllTasks[2]);
+            Assert.AreEqual(TaskForSorting4, sortedAllTasks[3]);
+            Assert.AreEqual(TaskForSorting5, sortedAllTasks[4]);
+            Assert.AreEqual(TaskForSorting5, sortedAllTasks[5]);
+            Assert.AreEqual(TaskForSorting6, sortedAllTasks[6]);
+            Assert.AreEqual(TaskForSorting7, sortedAllTasks[7]);
+            Assert.AreEqual(TaskForSorting8, sortedAllTasks[8]);
+            Assert.AreEqual(TaskForSorting8, sortedAllTasks[9]);
+            Assert.AreEqual(TaskForSorting9, sortedAllTasks[10]);
+            Assert.AreEqual(TaskForSorting10, sortedAllTasks[11]);
+            Assert.AreEqual(TaskForSorting11, sortedAllTasks[12]);
+            Assert.AreEqual(TaskForSorting12, sortedAllTasks[13]);
+        }
+
+        /// <summary>
+        /// Test sorting TaskCollections by DueDate.
+        /// </summary>
+        [TestMethod]
+        public void TestSortCollectionTasksByDate()
+        {
+            List<Task> sortedNoLists = NoListsCollection.GetTasksSortedByDate();
+            Assert.IsEmpty<Task>(sortedNoLists);
+
+            List<Task> sortedNoTasks = NoTasksButListsCollection.GetTasksSortedByDate();
+            Assert.IsEmpty<Task>(sortedNoTasks);
+
+            List<Task> sortedSomeTasks = TasksInSomeListsCollection.GetTasksSortedByDate();
+            Assert.AreEqual(10, sortedSomeTasks.Count);
+            Assert.AreEqual(TaskForSorting1, sortedSomeTasks[0]);
+            Assert.AreEqual(TaskForSorting9, sortedSomeTasks[1]);
+            Assert.AreEqual(TaskForSorting11, sortedSomeTasks[2]);
+            // Multiple things could be due at the same time.
+            // The TaskCollection is not expected to sort them any further.
+            Assert.IsTrue(
+                (sortedSomeTasks[3] == TaskForSorting2 && sortedSomeTasks[4] == TaskForSorting3) ||
+                (sortedSomeTasks[3] == TaskForSorting3 && sortedSomeTasks[4] == TaskForSorting2));
+            Assert.AreEqual(TaskForSorting4, sortedSomeTasks[5]);
+            Assert.AreEqual(TaskForSorting5, sortedSomeTasks[6]);
+            Assert.AreEqual(TaskForSorting10, sortedSomeTasks[7]);
+            Assert.AreEqual(TaskForSorting12, sortedSomeTasks[8]);
+            Assert.AreEqual(TaskForSorting8, sortedSomeTasks[9]);
+
+            // We expected new ordering due to the new TaskList's Tasks
+            List<Task> sortedAllTasks = AllListsHaveTasksWithDuplicatesCollection.GetTasksSortedByDate();
+            Assert.AreEqual(14, sortedAllTasks.Count);
+            Assert.AreEqual(TaskForSorting1, sortedAllTasks[0]);
+            Assert.AreEqual(TaskForSorting7, sortedAllTasks[1]);
+            Assert.AreEqual(TaskForSorting9, sortedAllTasks[2]);
+            Assert.AreEqual(TaskForSorting11, sortedAllTasks[3]);
+            Assert.IsTrue(
+                (sortedAllTasks[4] == TaskForSorting2 && sortedAllTasks[5] == TaskForSorting3) ||
+                (sortedAllTasks[4] == TaskForSorting3 && sortedAllTasks[5] == TaskForSorting2));
+            Assert.AreEqual(TaskForSorting4, sortedAllTasks[6]);
+            Assert.AreEqual(TaskForSorting6, sortedAllTasks[7]);
+            Assert.AreEqual(TaskForSorting5, sortedAllTasks[8]);
+            Assert.AreEqual(TaskForSorting5, sortedAllTasks[9]);
+            Assert.AreEqual(TaskForSorting10, sortedAllTasks[10]);
+            Assert.AreEqual(TaskForSorting12, sortedAllTasks[11]);
+            Assert.AreEqual(TaskForSorting8, sortedAllTasks[12]);
+            Assert.AreEqual(TaskForSorting8, sortedAllTasks[13]);
+        }
+
+        /// <summary>
+        /// Test sorting TaskCollections by CreationDate.
+        /// </summary>
+        [TestMethod]
+        public void TestSortCollectionTasksByCreationDate()
+        {
+            List<Task> sortedNoLists = NoListsCollection.GetTasksSortedByCreationDate();
+            Assert.IsEmpty<Task>(sortedNoLists);
+
+            List<Task> sortedNoTasks = NoTasksButListsCollection.GetTasksSortedByCreationDate();
+            Assert.IsEmpty<Task>(sortedNoTasks);
+
+            List<Task> sortedSomeTasks = TasksInSomeListsCollection.GetTasksSortedByCreationDate();
+            Assert.AreEqual(10, sortedSomeTasks.Count);
+            Assert.AreEqual(TaskForSorting1, sortedSomeTasks[0]);
+            Assert.AreEqual(TaskForSorting2, sortedSomeTasks[1]);
+            Assert.AreEqual(TaskForSorting3, sortedSomeTasks[2]);
+            Assert.AreEqual(TaskForSorting4, sortedSomeTasks[3]);
+            Assert.AreEqual(TaskForSorting5, sortedSomeTasks[4]);
+            Assert.AreEqual(TaskForSorting8, sortedSomeTasks[5]);
+            Assert.AreEqual(TaskForSorting9, sortedSomeTasks[6]);
+            Assert.AreEqual(TaskForSorting10, sortedSomeTasks[7]);
+            Assert.AreEqual(TaskForSorting11, sortedSomeTasks[8]);
+            Assert.AreEqual(TaskForSorting12, sortedSomeTasks[9]);
+
+            // We expected the new items to appeared inserted into the sequence sorted by creation
+            // date of the Tasks themselves, not the TaskLists adding them to the TaskCollection,
+            // or the dates of the Tasks' additions to those TaskLists.
+            List<Task> sortedAllTasks = AllListsHaveTasksWithDuplicatesCollection.GetTasksSortedByCreationDate();
+            Assert.AreEqual(14, sortedAllTasks.Count);
+            Assert.AreEqual(TaskForSorting1, sortedAllTasks[0]);
+            Assert.AreEqual(TaskForSorting2, sortedAllTasks[1]);
+            Assert.AreEqual(TaskForSorting3, sortedAllTasks[2]);
+            Assert.AreEqual(TaskForSorting4, sortedAllTasks[3]);
+            Assert.AreEqual(TaskForSorting5, sortedAllTasks[4]);
+            Assert.AreEqual(TaskForSorting5, sortedAllTasks[5]);
+            Assert.AreEqual(TaskForSorting6, sortedAllTasks[6]);
+            Assert.AreEqual(TaskForSorting7, sortedAllTasks[7]);
+            Assert.AreEqual(TaskForSorting8, sortedAllTasks[8]);
+            Assert.AreEqual(TaskForSorting8, sortedAllTasks[9]);
+            Assert.AreEqual(TaskForSorting9, sortedAllTasks[10]);
+            Assert.AreEqual(TaskForSorting10, sortedAllTasks[11]);
+            Assert.AreEqual(TaskForSorting11, sortedAllTasks[12]);
+            Assert.AreEqual(TaskForSorting12, sortedAllTasks[13]);
+        }
+
+        /// <summary>
+        /// Test sorting TaskCollections by Priority.
+        /// </summary>
+        [TestMethod]
+        public void TestSortCollectionTasksByPriority()
+        {
+            List<Task> sortedNoLists = NoListsCollection.GetTasksSortedByPriority();
+            Assert.IsEmpty<Task>(sortedNoLists);
+
+            List<Task> sortedNoTasks = NoTasksButListsCollection.GetTasksSortedByPriority();
+            Assert.IsEmpty<Task>(sortedNoTasks);
+
+            List<Task> sortedSomeTasks = TasksInSomeListsCollection.GetTasksSortedByPriority();
+            Assert.AreEqual(10, sortedSomeTasks.Count);
+            Assert.AreEqual(TaskForSorting5, sortedSomeTasks[0]);
+            Assert.AreEqual(TaskForSorting8, sortedSomeTasks[1]);
+            Assert.AreEqual(TaskForSorting4, sortedSomeTasks[2]);
+            Assert.AreEqual(TaskForSorting9, sortedSomeTasks[3]);
+            Assert.AreEqual(TaskForSorting3, sortedSomeTasks[4]);
+            Assert.AreEqual(TaskForSorting10, sortedSomeTasks[5]);
+            Assert.AreEqual(TaskForSorting2, sortedSomeTasks[6]);
+            Assert.AreEqual(TaskForSorting11, sortedSomeTasks[7]);
+            Assert.AreEqual(TaskForSorting1, sortedSomeTasks[8]);
+            Assert.AreEqual(TaskForSorting12, sortedSomeTasks[9]);
+
+            // We expected the new items to appeared inserted into the sequence sorted by creation
+            // date of the Tasks themselves, not the TaskLists adding them to the TaskCollection,
+            // or the dates of the Tasks' additions to those TaskLists.
+            List<Task> sortedAllTasks = AllListsHaveTasksWithDuplicatesCollection.GetTasksSortedByPriority();
+            Assert.AreEqual(14, sortedAllTasks.Count);
+            Assert.AreEqual(TaskForSorting6, sortedAllTasks[0]);
+            Assert.AreEqual(TaskForSorting7, sortedAllTasks[1]);
+            Assert.AreEqual(TaskForSorting5, sortedAllTasks[2]);
+            Assert.AreEqual(TaskForSorting5, sortedAllTasks[3]);
+            Assert.AreEqual(TaskForSorting8, sortedAllTasks[4]);
+            Assert.AreEqual(TaskForSorting8, sortedAllTasks[5]);
+            Assert.AreEqual(TaskForSorting4, sortedAllTasks[6]);
+            Assert.AreEqual(TaskForSorting9, sortedAllTasks[7]);
+            Assert.AreEqual(TaskForSorting3, sortedAllTasks[8]);
+            Assert.AreEqual(TaskForSorting10, sortedAllTasks[9]);
+            Assert.AreEqual(TaskForSorting2, sortedAllTasks[10]);
+            Assert.AreEqual(TaskForSorting11, sortedAllTasks[11]);
+            Assert.AreEqual(TaskForSorting1, sortedAllTasks[12]);
+            Assert.AreEqual(TaskForSorting12, sortedAllTasks[13]);
+        }
+
+        /// <summary>
+        /// Test getting all Habits only from a TaskCollection.
+        /// </summary>
+        [TestMethod]
+        public void TestGetHabits()
+        {
+            List<Task> searchedNoLists = NoListsCollection.GetHabits();
+            Assert.IsEmpty<Task>(searchedNoLists);
+
+            List<Task> searchedNoTasks = NoTasksButListsCollection.GetHabits();
+            Assert.IsEmpty<Task>(searchedNoTasks);
+
+            List<Task> searchedSomeTasks = TasksInSomeListsCollection.GetHabits();
+            Assert.AreEqual(2, searchedSomeTasks.Count);
+            Assert.Contains(TaskForSorting5, searchedSomeTasks);
+            Assert.Contains(TaskForSorting8, searchedSomeTasks);
+
+            List<Task> searchedAllTasks = AllListsHaveTasksWithDuplicatesCollection.GetHabits();
+            Assert.AreEqual(6, searchedAllTasks.Count);
+            Assert.Contains(TaskForSorting5, searchedAllTasks);
+            Assert.Contains(TaskForSorting6, searchedAllTasks);
+            Assert.Contains(TaskForSorting7, searchedAllTasks);
+            Assert.Contains(TaskForSorting8, searchedAllTasks);
+            // LINQ jumping in to make life easy for counting expected duplicates
+            Assert.AreEqual(2, searchedAllTasks.Count(task => task == TaskForSorting5));
+            Assert.AreEqual(2, searchedAllTasks.Count(task => task == TaskForSorting8));
+        }
+
+        /// <summary>
+        /// Test getting all RepeatingTasks only from a TaskCollection.
+        /// </summary>
+        [TestMethod]
+        public void TestGetRepeatingTasks()
+        {
+            List<Task> searchedNoLists = NoListsCollection.GetRepeatingTasks();
+            Assert.IsEmpty<Task>(searchedNoLists);
+
+            List<Task> searchedNoTasks = NoTasksButListsCollection.GetRepeatingTasks();
+            Assert.IsEmpty<Task>(searchedNoTasks);
+
+            List<Task> searchedSomeTasks = TasksInSomeListsCollection.GetRepeatingTasks();
+            Assert.AreEqual(6, searchedSomeTasks.Count);
+            // Every Habit is still a RepeatingTask
+            Assert.Contains(TaskForSorting5, searchedSomeTasks);
+            Assert.Contains(TaskForSorting8, searchedSomeTasks);
+            Assert.Contains(TaskForSorting9, searchedSomeTasks);
+            Assert.Contains(TaskForSorting10, searchedSomeTasks);
+            Assert.Contains(TaskForSorting11, searchedSomeTasks);
+            Assert.Contains(TaskForSorting12, searchedSomeTasks);
+
+            List<Task> searchedAllTasks = AllListsHaveTasksWithDuplicatesCollection.GetRepeatingTasks();
+            Assert.AreEqual(10, searchedAllTasks.Count);
+            Assert.Contains(TaskForSorting5, searchedAllTasks);
+            Assert.Contains(TaskForSorting6, searchedAllTasks);
+            Assert.Contains(TaskForSorting7, searchedAllTasks);
+            Assert.Contains(TaskForSorting8, searchedAllTasks);
+            Assert.Contains(TaskForSorting9, searchedAllTasks);
+            Assert.Contains(TaskForSorting10, searchedAllTasks);
+            Assert.Contains(TaskForSorting11, searchedAllTasks);
+            Assert.Contains(TaskForSorting12, searchedAllTasks);
+            Assert.AreEqual(2, searchedAllTasks.Count(task => task == TaskForSorting5));
+            Assert.AreEqual(2, searchedAllTasks.Count(task => task == TaskForSorting8));
+        }
+
+        /// <summary>
+        /// Test getting all Tasks due today only from a TaskCollection.
+        /// </summary>
+        [TestMethod]
+        public void TestGetDueTasks()
+        {
+            List<Task> searchedNoLists = NoListsCollection.GetDueTasks();
+            Assert.AreEqual("\n ------------------------ \n", NoListsCollection.ToString());
+
+            List<Task> searchedNoTasks = NoTasksButListsCollection.GetDueTasks();
+            Assert.AreEqual("\n ------------------------ \n", NoTasksButListsCollection.ToString());
+
+            List<Task> searchedSomeTasks = TasksInSomeListsCollection.GetDueTasks();
+            Assert.AreEqual(2, searchedSomeTasks.Count);
+            Assert.Contains(TaskForSorting2, searchedSomeTasks);
+            Assert.Contains(TaskForSorting3, searchedSomeTasks);
+
+            List<Task> searchedAllTasks = AllListsHaveTasksWithDuplicatesCollection.GetDueTasks();
+            Assert.AreEqual(2, searchedAllTasks.Count);
+            Assert.Contains(TaskForSorting2, searchedAllTasks);
+            Assert.Contains(TaskForSorting3, searchedAllTasks);
+        }
+
+        /// <summary>
+        /// Test getting all Tasks with a description from a TaskCollection.
+        /// </summary>
+        [TestMethod]
+        public void TestGetTaskByDescription()
+        {
+            // Empty strings
+            List<Task> searchedNoListsForEmptyString = NoListsCollection.GetTasksWithDescription("");
+            Assert.IsEmpty<Task>(searchedNoListsForEmptyString);
+
+            List<Task> searchedNoTasksForEmptyString = NoTasksButListsCollection.GetTasksWithDescription("");
+            Assert.IsEmpty<Task>(searchedNoTasksForEmptyString);
+
+            List<Task> searchedSomeTasksForEmptyString = TasksInSomeListsCollection.GetTasksWithDescription("");
+            Assert.IsEmpty<Task>(searchedSomeTasksForEmptyString);
+
+            List<Task> searchedAllTasksForEmptyString = AllListsHaveTasksWithDuplicatesCollection.GetTasksWithDescription("");
+            Assert.IsEmpty<Task>(searchedAllTasksForEmptyString);
+
+            // Non-existing string
+            string badString = "I'm that bad string, Make your mama sad string, Make your girlfriend mad string, Might seduce your dad string. I'm the bad string. Duh.";
+            List<Task> searchedNoListsForSillyString = NoListsCollection.GetTasksWithDescription(badString);
+            Assert.IsEmpty<Task>(searchedNoListsForSillyString);
+
+            List<Task> searchedNoTasksForSillyString = NoTasksButListsCollection.GetTasksWithDescription(badString);
+            Assert.IsEmpty<Task>(searchedNoTasksForSillyString);
+
+            List<Task> searchedSomeTasksForSillyString = TasksInSomeListsCollection.GetTasksWithDescription(badString);
+            Assert.IsEmpty<Task>(searchedSomeTasksForSillyString);
+
+            List<Task> searchedAllTasksForSillyString = AllListsHaveTasksWithDuplicatesCollection.GetTasksWithDescription(badString);
+            Assert.IsEmpty<Task>(searchedAllTasksForSillyString);
+
+            // Existing strings
+            string goodString = "Heat the grater";  // Matches TaskForSorting8
+            List<Task> searchedNoListsForExistingString = NoListsCollection.GetTasksWithDescription(goodString);
+            Assert.IsEmpty<Task>(searchedNoListsForExistingString);
+
+            List<Task> searchedNoTasksForExistingString = NoTasksButListsCollection.GetTasksWithDescription(goodString);
+            Assert.IsEmpty<Task>(searchedNoTasksForExistingString);
+
+            List<Task> searchedSomeTasksForExistingString = TasksInSomeListsCollection.GetTasksWithDescription(goodString);
+            Assert.AreEqual(1, searchedSomeTasksForExistingString.Count);
+            Assert.AreEqual(TaskForSorting8, searchedSomeTasksForExistingString[0]);
+
+            List<Task> searchedAllTasksForExistingString = AllListsHaveTasksWithDuplicatesCollection.GetTasksWithDescription(goodString);
+            Assert.AreEqual(2, searchedAllTasksForExistingString.Count);
+            Assert.AreEqual(TaskForSorting8, searchedAllTasksForExistingString[0]);
+            Assert.AreEqual(TaskForSorting8, searchedAllTasksForExistingString[1]);
+        }
+
+        #endregion
+
     }
 }
+

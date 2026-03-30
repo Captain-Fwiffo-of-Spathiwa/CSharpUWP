@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using TaskManagement.Helpers;
 using Windows.Storage;
 using File = System.IO.File;
@@ -13,26 +12,24 @@ using File = System.IO.File;
     Session 5 Assessment Task
 
     Add the following methods to your task collection class:
-        [] ... returns a list of all tasksToSort, sorted by name
-        [] ... returns a list of all tasksToSort, sorted by due date
-        [] ... returns a list of all tasksToSort, sorted by creation date
-        [] ... returns a list of all tasksToSort, sorted by priority
-        [] ... returns all habits
-        [] ... returns all repeating tasksToSort
-        [] ... returns a list of all tasksToSort due today
-        [] ... returns all tasksToSort with a given description
+        [✓] ... returns a list of all tasks, sorted by name
+        [✓] ... returns a list of all tasks, sorted by due date
+        [✓] ... returns a list of all tasks, sorted by creation date
+        [✓] ... returns a list of all tasks, sorted by priority
+        [✓] ... returns all habits
+        [✓] ... returns all repeating tasks
+        [✓] ... returns a list of all tasks due today
+        [✓] ... returns all tasks with a given description
 
     Note that some of these may require you to make equivalent methods for
     the task list class. It depends on how you implement them.
 
     Testing
-        [] Write unit tests to show that everything is working correctly
+        [✓] Write unit tests to show that everything is working correctly
         
-    You may also wish to create some code that outputs to the console just
-    for your own testing as you do this exercise, but that is not required.
-   ------------------------------------------------------------------------*/
-
-
+    You may also wish to create some code that outputs to the console for
+    own testing as you do this exercise, but that is not required.
+   -----------------------------------------------------------------------*/
 
 namespace TaskManagement.Models
 {
@@ -198,17 +195,14 @@ public class TaskCollection
 
     public List<Task> GetTasksSortedByName()
     {
-        /* ---------------------------------------------------------------
+        /* ----------------------------------------------------------------
             There's not much point in letting our Sort go down to the
             TaskLists themselves, since the TaskCollection has multiple
             TaskLists that would still need futher sorting to combine.
 
             So we'll build a copy of references first, then Sort that.
+           ---------------------------------------------------------------*/
 
-            It's not hard to have a thousand TaskLists and squillions of
-            different Tasks. So we allocate some space first intead of
-            worrying about the list lurching around resizing at runtime.
-            --------------------------------------------------------------*/
         List<Task> tasksToSort = GetAllTasks();
         tasksToSort.Sort((task1, task2) => task1.GetDescription().CompareTo(task2.GetDescription()));
      
@@ -220,8 +214,67 @@ public class TaskCollection
         return tasksToSort;
     }
 
+    public List<Task> GetTasksSortedByDate()
+    {
+        List<Task> tasksToSort = GetAllTasks();
+        tasksToSort.Sort((task1, task2) => task1.DueDate.Value.CompareTo(task2.DueDate.Value));
+        return tasksToSort;
+    }
+
+    public List<Task> GetTasksSortedByCreationDate()
+    {
+        List<Task> tasksToSort = GetAllTasks();
+        tasksToSort.Sort((task1, task2) => task1.DateCreated.CompareTo(task2.DateCreated));
+        return tasksToSort;
+    }
+
+    public List<Task> GetTasksSortedByPriority()
+    {
+        List<Task> tasksToSort = GetAllTasks();
+        // We assume that lower value means higher priority, and sort from highest priority
+        tasksToSort.Sort((task1, task2) => task1.TaskPriority.Value - task2.TaskPriority.Value);
+        return tasksToSort;
+    }
+
+    public List<Task> GetHabits()
+    {
+        // A more performant approach would have been to run this LINQ Where()
+        // in each TaskList, avoiding the copy of the full list of all Tasks.
+        List<Task> tasksToSort = GetAllTasks();
+        return tasksToSort.Where(task => task is Habit).ToList();
+    }
+
+    public List<Task> GetRepeatingTasks()
+    {
+        List<Task> tasksToSort = GetAllTasks();
+        return tasksToSort.Where(task => task is RepeatingTask).ToList();
+    }
+
+    public List<Task> GetDueTasks()
+    {
+        List<Task> tasksToSort = GetAllTasks();
+        return tasksToSort.Where(task => task.DueDate.Value.Date == DateTime.Today.Date).ToList();
+    }
+
+    /// <summary>
+    /// Get only Tasks whose Description matches the entire given string exactly.
+    /// </summary>
+    public List<Task> GetTasksWithDescription(string description)
+    {
+        List<Task> tasksToSort = GetAllTasks();
+        return tasksToSort.Where(task => task.GetDescription() == description).ToList();
+    }
+
     private List<Task> GetAllTasks()
     {
+        /* ----------------------------------------------------------------
+            We allocate space first intead of having the list lurch around
+            resizing at runtime, but really this was silly. The CPU isn't
+            going to notice a human's TaskList. And if we were going to be
+            this precious the TaskCollection should have just managed this
+            extra list per Task anyway. Ah well. I already did it.
+           ---------------------------------------------------------------*/
+
         int numTasks = 0;
         foreach (var tasklist in TaskLists)
         {
@@ -237,6 +290,5 @@ public class TaskCollection
 
         return sortedTasks;
     }
-
 }
 }
