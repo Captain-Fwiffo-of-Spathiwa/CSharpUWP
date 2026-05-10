@@ -18,7 +18,7 @@ namespace UnitTests
     /// 
     /// Changelog:
     /// ----------
-    /// 09/05/26: Add remaining natural date tests.
+    /// 10/05/26: Add remaining natural date tests.
     /// 01/05/26: Add initial natural date tests.
     /// 24/03/26: Fix RepeatingTask completion timings.
     /// 23/03/26: Collection, List, and Task tests added. Fixed TestSaveAndLoadTaskCollection().
@@ -1190,7 +1190,6 @@ namespace UnitTests
 
         #region Assessment 7 Tests - Forgiving Format
 
-
         /// <summary>
         /// Test that natural dates specified for this week are producing the correct dates.
         /// The majority of the remaining tests test for format and DayOfWeek.
@@ -1451,9 +1450,6 @@ namespace UnitTests
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         [TestMethod]
         public void TestValidOneWordTodayStrings()
         {
@@ -1465,9 +1461,6 @@ namespace UnitTests
             Assert.AreEqual(DateTime.Today, StringParse.ParseNaturalDate("Todya"));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         [TestMethod]
         public void TestValidOneWordTomorrowStrings()
         {
@@ -1479,9 +1472,6 @@ namespace UnitTests
             Assert.AreEqual(DateTime.Today.AddDays(1), StringParse.ParseNaturalDate("torMOrrow"));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         [TestMethod]
         public void TestValidOneWordDayStrings()
         {
@@ -1521,9 +1511,6 @@ namespace UnitTests
             Assert.AreEqual(DayOfWeek.Sunday, StringParse.ParseNaturalDate("SunDAy").DayOfWeek);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         [TestMethod]
         public void TestValidOneWordMisspelledDayStrings()
         {
@@ -1556,106 +1543,21 @@ namespace UnitTests
             Assert.AreEqual(DayOfWeek.Sunday, StringParse.ParseNaturalDate("SuNdAy").DayOfWeek);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         [TestMethod]
         public void TestInvalidOneWordDayStrings()
         {
-            try
-            {
-                StringParse.ParseNaturalDate("yadot");
-            }
-            catch (Exception ex)
-            {
-                Assert.AreEqual("Invalid natural date spelling: yadot", ex.Message);
-            }
-
-            try
-            {
-                StringParse.ParseNaturalDate("tmrrw");
-            }
-            catch (Exception ex)
-            {
-                Assert.AreEqual("Invalid natural date spelling: tmrrw", ex.Message);
-            }
-
-            try
-            {
-                StringParse.ParseNaturalDate("yesterday");
-            }
-            catch (Exception ex)
-            {
-                Assert.AreEqual("Invalid natural date spelling: yesterday", ex.Message);
-            }
-
-            try
-            {
-                StringParse.ParseNaturalDate("moondays");
-            }
-            catch (Exception ex)
-            {
-                Assert.AreEqual("Invalid natural date spelling: moondays", ex.Message);
-            }
-
-            try
-            {
-                StringParse.ParseNaturalDate("choosedays");
-            }
-            catch (Exception ex)
-            {
-                Assert.AreEqual("Invalid natural date spelling: choosedays", ex.Message);
-            }
-
-            try
-            {
-                StringParse.ParseNaturalDate("weddingday");
-            }
-            catch (Exception ex)
-            {
-                Assert.AreEqual("Invalid natural date spelling: weddingday", ex.Message);
-            }
-
-            try
-            {
-                StringParse.ParseNaturalDate("thearlsday");
-            }
-            catch (Exception ex)
-            {
-                Assert.AreEqual("Invalid natural date spelling: thearlsday", ex.Message);
-            }
-
-            try
-            {
-                StringParse.ParseNaturalDate("Fry-upday");
-            }
-            catch (Exception ex)
-            {
-                Assert.AreEqual("Invalid natural date spelling: fryupday", ex.Message);
-            }
-
-            try
-            {
-                StringParse.ParseNaturalDate("Sitddownday");
-            }
-            catch (Exception ex)
-            {
-                Assert.AreEqual("Invalid natural date spelling: sitddownday", ex.Message);
-            }
-
-            try
-            {
-                StringParse.ParseNaturalDate("sunnight");
-            }
-            catch (Exception ex)
-            {
-                Assert.AreEqual("Invalid natural date spelling: sunnight", ex.Message);
-            }
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalDate("yadot"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalDate("tmrrw"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalDate("yesterday"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalDate("moondays"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalDate("choosedays"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalDate("weddingday"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalDate("thearlsday"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalDate("Fry-upday"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalDate("Sitddownday"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalDate("sunnight"));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         [TestMethod]
         public void TestTwoWordTodayStringsWithValidPreposition()
         {
@@ -1666,9 +1568,6 @@ namespace UnitTests
             Assert.AreEqual(DateTime.Today, StringParse.ParseNaturalDate("FOR Today"));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         [TestMethod]
         public void TestTwoWordTomorrowStringsWithValidPreposition()
         {
@@ -1679,9 +1578,6 @@ namespace UnitTests
             Assert.AreEqual(DateTime.Today.AddDays(1), StringParse.ParseNaturalDate("fOr Tomorrow"));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         [TestMethod]
         public void TestTwoWordDayStringsWithValidPreposition()
         {
@@ -1707,9 +1603,6 @@ namespace UnitTests
             Assert.AreEqual(DayOfWeek.Sunday, StringParse.ParseNaturalDate("by suNdYa").DayOfWeek);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         [TestMethod]
         public void TestTwoWordTodayStringsWithWeekSpecifier()
         {
@@ -1724,9 +1617,6 @@ namespace UnitTests
             Assert.AreEqual(DateTime.Today.AddDays(7), StringParse.ParseNaturalDate("NeXT todya"));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         [TestMethod]
         public void TestTwoWordTomorrowStringsWithWeekSpecifier()
         {
@@ -1741,9 +1631,6 @@ namespace UnitTests
             Assert.AreEqual(DateTime.Today.AddDays(8), StringParse.ParseNaturalDate("NeXT tOMORroW"));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         [TestMethod]
         public void TestTwoWordDayStringsWithWeekSpecifier()
         {
@@ -1757,9 +1644,6 @@ namespace UnitTests
             Assert.AreEqual(DayOfWeek.Sunday, StringParse.ParseNaturalDate("NeXT SUNday").DayOfWeek);
         }
 
-        /// <summary>
-        /// Test invalid words before correct day spellings.
-        /// </summary>
         [TestMethod]
         public void TestTwoWordDayStringsWithInvalidFirstWord()
         {
@@ -1845,9 +1729,6 @@ namespace UnitTests
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         [TestMethod]
         public void TestValidThreeWordTodayStrings()
         {
@@ -1859,9 +1740,6 @@ namespace UnitTests
             Assert.AreEqual(DateTime.Today.AddDays(7), StringParse.ParseNaturalDate("FOR next ToAdY"));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         [TestMethod]
         public void TestValidThreeWordTomorrowStrings()
         {
@@ -1873,9 +1751,6 @@ namespace UnitTests
             Assert.AreEqual(DateTime.Today.AddDays(8), StringParse.ParseNaturalDate("BY next ToMoRoW"));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         [TestMethod]
         public void TestValidThreeWordDayStrings()
         {
@@ -1929,97 +1804,393 @@ namespace UnitTests
             Assert.AreEqual(DayOfWeek.Sunday, StringParse.ParseNaturalDate("ON next SuNdY").DayOfWeek);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         [TestMethod]
         public void TestUnorderedThreeWordDayStrings()
         {
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalDate("Monday this by"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalDate("Next Tuesday on"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalDate("By Wednesday this"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalDate("This Thursday in"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalDate("Friday next at"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalDate("On Saturday this"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalDate("Sunday by next"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalDate("Next today by"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalDate("Tomorrow this in"));
+        }
+
+        [TestMethod]
+        public void TestLongTimeStrings()
+        {
+            Assert.AreEqual(TimeSpan.FromHours(16) + TimeSpan.FromMinutes(30), StringParse.ParseNaturalTime("At half past 4 pm"));
+            Assert.AreEqual(TimeSpan.FromHours(11) + TimeSpan.FromMinutes(45), StringParse.ParseNaturalTime("Before a quarter to 12"));
+            Assert.AreEqual(TimeSpan.FromHours(19) + TimeSpan.FromMinutes(30), StringParse.ParseNaturalTime("For seven thirty o'clock in the evening"));
+            Assert.AreEqual(TimeSpan.FromHours(4) + TimeSpan.FromMinutes(30), StringParse.ParseNaturalTime("By a half past 4 in the morning"));
+            Assert.AreEqual(TimeSpan.FromHours(07), StringParse.ParseNaturalTime("On seven o'clock am"));
+            Assert.AreEqual(TimeSpan.FromHours(21) + TimeSpan.FromMinutes(13), StringParse.ParseNaturalTime("At 9:13 pm"));
+            Assert.AreEqual(TimeSpan.FromHours(20) + TimeSpan.FromMinutes(30), StringParse.ParseNaturalTime("Before Twenty Thirty"));
+        }
+
+        [TestMethod]
+        public void TestShortTimeStrings()
+        {
+            Assert.AreEqual(TimeSpan.FromHours(13), StringParse.ParseNaturalTime("1"));
+            Assert.AreEqual(TimeSpan.FromHours(13), StringParse.ParseNaturalTime("One"));
+            Assert.AreEqual(TimeSpan.FromHours(1), StringParse.ParseNaturalTime("01"));
+            Assert.AreEqual(TimeSpan.FromHours(1), StringParse.ParseNaturalTime("1 am"));
+            Assert.AreEqual(TimeSpan.FromHours(13), StringParse.ParseNaturalTime("1 pm"));
+            Assert.AreEqual(TimeSpan.FromHours(13), StringParse.ParseNaturalTime("13"));
+            Assert.AreEqual(TimeSpan.FromHours(6), StringParse.ParseNaturalTime("6"));
+            Assert.AreEqual(TimeSpan.FromHours(6), StringParse.ParseNaturalTime("06"));
+            Assert.AreEqual(TimeSpan.FromHours(6), StringParse.ParseNaturalTime("Six"));
+            Assert.AreEqual(TimeSpan.FromHours(6), StringParse.ParseNaturalTime("6 am"));
+            Assert.AreEqual(TimeSpan.FromHours(18), StringParse.ParseNaturalTime("6 pm"));
+            Assert.AreEqual(TimeSpan.FromHours(18), StringParse.ParseNaturalTime("18"));
+        }
+
+        [TestMethod]
+        public void TestValidNumberedHourOnlyTimeStrings()
+        {
+            Assert.AreEqual(TimeSpan.FromHours(0), StringParse.ParseNaturalTime("0"));
+            Assert.AreEqual(TimeSpan.FromHours(13), StringParse.ParseNaturalTime("1"));
+            Assert.AreEqual(TimeSpan.FromHours(15), StringParse.ParseNaturalTime("3"));
+            Assert.AreEqual(TimeSpan.FromHours(5), StringParse.ParseNaturalTime("5"));
+            Assert.AreEqual(TimeSpan.FromHours(6), StringParse.ParseNaturalTime("6"));
+            Assert.AreEqual(TimeSpan.FromHours(12), StringParse.ParseNaturalTime("12"));
+            Assert.AreEqual(TimeSpan.FromHours(14), StringParse.ParseNaturalTime("14"));
+            Assert.AreEqual(TimeSpan.FromHours(21), StringParse.ParseNaturalTime("21"));
+        }
+
+        [TestMethod]
+        public void TestValidNamedHourOnlyTimeStrings()
+        {
+            Assert.AreEqual(TimeSpan.FromHours(0), StringParse.ParseNaturalTime("Zero"));
+            Assert.AreEqual(TimeSpan.FromHours(13), StringParse.ParseNaturalTime("one"));
+            Assert.AreEqual(TimeSpan.FromHours(15), StringParse.ParseNaturalTime("There"));
+            Assert.AreEqual(TimeSpan.FromHours(5), StringParse.ParseNaturalTime("Fiv"));
+            Assert.AreEqual(TimeSpan.FromHours(6), StringParse.ParseNaturalTime("Sic"));
+            Assert.AreEqual(TimeSpan.FromHours(12), StringParse.ParseNaturalTime("TWELVE"));
+            Assert.AreEqual(TimeSpan.FromHours(13), StringParse.ParseNaturalTime("THirtEEN"));
+            Assert.AreEqual(TimeSpan.FromHours(20), StringParse.ParseNaturalTime("twenty"));
+        }
+
+        [TestMethod]
+        public void TestInvalidHourOnlyTimeStrings()
+        {
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("24"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("000"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("017"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("twenty-one"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("bigfoot"));
+        }
+
+        [TestMethod]
+        public void TestValidPrepositionTimeStrings()
+        {
+            Assert.AreEqual(TimeSpan.FromHours(0), StringParse.ParseNaturalTime("at 0"));
+            Assert.AreEqual(TimeSpan.FromHours(14), StringParse.ParseNaturalTime("BY 2"));
+            Assert.AreEqual(TimeSpan.FromHours(16), StringParse.ParseNaturalTime("For 4"));
+            Assert.AreEqual(TimeSpan.FromHours(7), StringParse.ParseNaturalTime("oN 7"));
+            Assert.AreEqual(TimeSpan.FromHours(8), StringParse.ParseNaturalTime("beFOre 8"));
+            Assert.AreEqual(TimeSpan.FromHours(12), StringParse.ParseNaturalTime("A 12"));
+            Assert.AreEqual(TimeSpan.FromHours(14), StringParse.ParseNaturalTime("a 14"));
+            Assert.AreEqual(TimeSpan.FromHours(21), StringParse.ParseNaturalTime("At 21"));
+            Assert.AreEqual(TimeSpan.FromHours(0), StringParse.ParseNaturalTime("bY zero"));
+            Assert.AreEqual(TimeSpan.FromHours(13), StringParse.ParseNaturalTime("on one"));
+            Assert.AreEqual(TimeSpan.FromHours(15), StringParse.ParseNaturalTime("a three"));
+            Assert.AreEqual(TimeSpan.FromHours(5), StringParse.ParseNaturalTime("on five"));
+            Assert.AreEqual(TimeSpan.FromHours(6), StringParse.ParseNaturalTime("before six"));
+            Assert.AreEqual(TimeSpan.FromHours(12), StringParse.ParseNaturalTime("by twelve"));
+            Assert.AreEqual(TimeSpan.FromHours(13), StringParse.ParseNaturalTime("BY thirteen"));
+            Assert.AreEqual(TimeSpan.FromHours(20), StringParse.ParseNaturalTime("On twenty"));
+        }
+
+        [TestMethod]
+        public void TestValidClockSegmentTimeStrings()
+        {
+            Assert.AreEqual(TimeSpan.FromHours(23) + TimeSpan.FromMinutes(45), StringParse.ParseNaturalTime("a quarter to 0"));
+            Assert.AreEqual(TimeSpan.FromHours(13) + TimeSpan.FromMinutes(45), StringParse.ParseNaturalTime("Quarter To 2"));
+            Assert.AreEqual(TimeSpan.FromHours(15) + TimeSpan.FromMinutes(45), StringParse.ParseNaturalTime("a qUATER tO 4"));
+            Assert.AreEqual(TimeSpan.FromHours(6) + TimeSpan.FromMinutes(45), StringParse.ParseNaturalTime("QUARFTER TO 7"));
+            Assert.AreEqual(TimeSpan.FromHours(8) + TimeSpan.FromMinutes(15), StringParse.ParseNaturalTime("quarter past 8"));
+            Assert.AreEqual(TimeSpan.FromHours(12) + TimeSpan.FromMinutes(15), StringParse.ParseNaturalTime("a qarTER PAST 12"));
+            Assert.AreEqual(TimeSpan.FromHours(14) + TimeSpan.FromMinutes(15), StringParse.ParseNaturalTime("QUORTER Past 14"));
+            Assert.AreEqual(TimeSpan.FromHours(21) + TimeSpan.FromMinutes(15), StringParse.ParseNaturalTime("a Quarterr pASt 21"));
+            Assert.AreEqual(TimeSpan.FromHours(23) + TimeSpan.FromMinutes(30), StringParse.ParseNaturalTime("half to zero"));
+            Assert.AreEqual(TimeSpan.FromHours(12) + TimeSpan.FromMinutes(30), StringParse.ParseNaturalTime("a Half TO one"));
+            Assert.AreEqual(TimeSpan.FromHours(14) + TimeSpan.FromMinutes(30), StringParse.ParseNaturalTime("HALF tO three"));
+            Assert.AreEqual(TimeSpan.FromHours(4) + TimeSpan.FromMinutes(30), StringParse.ParseNaturalTime("a hALf To five"));
+            Assert.AreEqual(TimeSpan.FromHours(6) + TimeSpan.FromMinutes(30), StringParse.ParseNaturalTime("half past six"));
+            Assert.AreEqual(TimeSpan.FromHours(12) + TimeSpan.FromMinutes(30), StringParse.ParseNaturalTime("a HALF Past twelve"));
+            Assert.AreEqual(TimeSpan.FromHours(13) + TimeSpan.FromMinutes(30), StringParse.ParseNaturalTime("Half PAST thirteen"));
+            Assert.AreEqual(TimeSpan.FromHours(20) + TimeSpan.FromMinutes(30), StringParse.ParseNaturalTime("a haLF PAst twenty"));
+        }
+
+        [TestMethod]
+        public void TestInvalidClockSegmentTimeStrings()
+        {
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("a quarter 12"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("half seven"));
+        }
+
+        [TestMethod]
+        public void TestValidHoursAndMinutesTimeStrings()
+        {
+            Assert.AreEqual(TimeSpan.FromHours(0) + TimeSpan.FromMinutes(30), StringParse.ParseNaturalTime("zero thirty"));
+            Assert.AreEqual(TimeSpan.FromHours(13) + TimeSpan.FromMinutes(30), StringParse.ParseNaturalTime("one:THIRty"));
+            Assert.AreEqual(TimeSpan.FromHours(15) + TimeSpan.FromMinutes(30), StringParse.ParseNaturalTime("three 30"));
+            Assert.AreEqual(TimeSpan.FromHours(15) + TimeSpan.FromMinutes(30), StringParse.ParseNaturalTime("three.30"));
+            Assert.AreEqual(TimeSpan.FromHours(5) + TimeSpan.FromMinutes(15), StringParse.ParseNaturalTime("five fiFTEEN"));
+            Assert.AreEqual(TimeSpan.FromHours(6) + TimeSpan.FromMinutes(15), StringParse.ParseNaturalTime("six.fifteen"));
+            Assert.AreEqual(TimeSpan.FromHours(12) + TimeSpan.FromMinutes(15), StringParse.ParseNaturalTime("twelve 15"));
+            Assert.AreEqual(TimeSpan.FromHours(12) + TimeSpan.FromMinutes(15), StringParse.ParseNaturalTime("twelve:15"));
+            Assert.AreEqual(TimeSpan.FromHours(13) + TimeSpan.FromMinutes(30), StringParse.ParseNaturalTime("13,30"));
+            Assert.AreEqual(TimeSpan.FromHours(20) + TimeSpan.FromMinutes(30), StringParse.ParseNaturalTime("20:THIRTY"));
+            Assert.AreEqual(TimeSpan.FromHours(9) + TimeSpan.FromMinutes(2), StringParse.ParseNaturalTime("9:02"));
+            Assert.AreEqual(TimeSpan.FromHours(9) + TimeSpan.FromMinutes(22), StringParse.ParseNaturalTime("9 22"));
+            Assert.AreEqual(TimeSpan.FromHours(14) + TimeSpan.FromMinutes(15), StringParse.ParseNaturalTime("14,fifteen"));
+            Assert.AreEqual(TimeSpan.FromHours(14) + TimeSpan.FromMinutes(15), StringParse.ParseNaturalTime("14.15"));
+        }
+
+        [TestMethod]
+        public void TestInvalidMinutesTimeStrings()
+        {
             try
             {
-                StringParse.ParseNaturalDate("Monday this by");
+                StringParse.ParseNaturalTime("One forty");
             }
             catch (Exception ex)
             {
-                Assert.AreEqual("Invalid natural date format.", ex.Message);
+                Assert.AreEqual("Invalid natural time format: forty", ex.Message);
             }
 
             try
             {
-                StringParse.ParseNaturalDate("Next Tuesday on");
+                StringParse.ParseNaturalTime("Seven 60");
             }
             catch (Exception ex)
             {
-                Assert.AreEqual("Invalid natural date format.", ex.Message);
+                Assert.AreEqual("Invalid natural time format: 60", ex.Message);
             }
 
             try
             {
-                StringParse.ParseNaturalDate("By Wednesday this");
+                StringParse.ParseNaturalTime("6:412");
             }
             catch (Exception ex)
             {
-                Assert.AreEqual("Invalid natural date format.", ex.Message);
+                Assert.AreEqual("Invalid natural time format: 412", ex.Message);
             }
 
             try
             {
-                StringParse.ParseNaturalDate("This Thursday in");
+                StringParse.ParseNaturalTime("8 -15");
             }
             catch (Exception ex)
             {
-                Assert.AreEqual("Invalid natural date format.", ex.Message);
-            }
-
-            try
-            {
-                StringParse.ParseNaturalDate("Friday next at");
-            }
-            catch (Exception ex)
-            {
-                Assert.AreEqual("Invalid natural date format.", ex.Message);
-            }
-
-            try
-            {
-                StringParse.ParseNaturalDate("On Saturday this");
-            }
-            catch (Exception ex)
-            {
-                Assert.AreEqual("Invalid natural date format.", ex.Message);
-            }
-
-            try
-            {
-                StringParse.ParseNaturalDate("Sunday by next");
-            }
-            catch (Exception ex)
-            {
-                Assert.AreEqual("Invalid natural date format.", ex.Message);
-            }
-
-            try
-            {
-                StringParse.ParseNaturalDate("Next today by");
-            }
-            catch (Exception ex)
-            {
-                Assert.AreEqual("Invalid natural date format.", ex.Message);
-            }
-
-            try
-            {
-                StringParse.ParseNaturalDate("Tomorrow this in");
-            }
-            catch (Exception ex)
-            {
-                Assert.AreEqual("Invalid natural date format.", ex.Message);
+                Assert.AreEqual("Invalid punctuation found: 8 -15", ex.Message);
             }
         }
 
+        [TestMethod]
+        public void TestValidSidesOfNoonTimeStrings()
+        {
+            Assert.AreEqual(TimeSpan.FromHours(0) + TimeSpan.FromMinutes(0), StringParse.ParseNaturalTime("zero"));
+            Assert.AreEqual(TimeSpan.FromHours(1) + TimeSpan.FromMinutes(30), StringParse.ParseNaturalTime("one thirty in the morning"));
+            Assert.AreEqual(TimeSpan.FromHours(15) + TimeSpan.FromMinutes(12), StringParse.ParseNaturalTime("three 12 AFternooN"));
+            Assert.AreEqual(TimeSpan.FromHours(15) + TimeSpan.FromMinutes(15), StringParse.ParseNaturalTime("three fifteen oclock pm"));
+            Assert.AreEqual(TimeSpan.FromHours(17) + TimeSpan.FromMinutes(0), StringParse.ParseNaturalTime("five in evening"));
+            Assert.AreEqual(TimeSpan.FromHours(6) + TimeSpan.FromMinutes(0), StringParse.ParseNaturalTime("six at mornin"));
+            Assert.AreEqual(TimeSpan.FromHours(12) + TimeSpan.FromMinutes(0), StringParse.ParseNaturalTime("twelve in the o'clock Aternoon"));
+            Assert.AreEqual(TimeSpan.FromHours(12) + TimeSpan.FromMinutes(0), StringParse.ParseNaturalTime("twelve pm"));
+            Assert.AreEqual(TimeSpan.FromHours(9) + TimeSpan.FromMinutes(30), StringParse.ParseNaturalTime("9:thirty in the MORING"));
+            Assert.AreEqual(TimeSpan.FromHours(21) + TimeSpan.FromMinutes(22), StringParse.ParseNaturalTime("9 22 in the evning"));
+            Assert.AreEqual(TimeSpan.FromHours(14) + TimeSpan.FromMinutes(15), StringParse.ParseNaturalTime("2.15 Pm"));
+        }
+
+        [TestMethod]
+        public void TestInvalidSidesOfNoonTimeStrings()
+        {
+            // Self-contradicting time
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("14 am"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("08 pm"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("thirteen am"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("zero pm"));
+
+            // Redundant am/pm
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("07 am"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("15 pm"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("fourteen pm"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("zero am"));
+
+            // Self-contradicting elaborate time 
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("14:01 in the morning"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("half past 08 pm"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("zero o'clock pm"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("thirteen 20 am"));
+
+            // Redundant elaborate time
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("07 thirty am"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("a quarter to 15 pm"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("fourteen fifteen pm"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("zero 00 am"));
+
+            // Bad am/pm
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("14 dm"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("07 bm"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("thirteen qm"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTime("zero pn"));
+        }
+
+        [TestMethod]
+        public void TestNaturalTasksWithValidTimes()
+        {
+            Task newTask1 = StringParse.ParseNaturalTaskCreation("Buy a pony at 9");
+            Task newTask2 = StringParse.ParseNaturalTaskCreation("At half past 4 pm  Tell John To Get A Dog");
+            Task newTask3 = StringParse.ParseNaturalTaskCreation("Eat, Before 9:12 am, the pies");
+            Task newTask4 = StringParse.ParseNaturalTaskCreation("Call Pope... Before a quarter to 12");
+            Task newTask5 = StringParse.ParseNaturalTaskCreation("RESISTANCE IS For seven thirty o'clock in the evening FUTILE!");
+
+            Assert.AreEqual("Buy a pony", newTask1.GetDescription());
+            Assert.AreEqual(DateTime.Today + TimeSpan.FromHours(9), newTask1.DueDate);
+
+            Assert.AreEqual("Tell John To Get A Dog", newTask2.GetDescription());
+            Assert.AreEqual(DateTime.Today + TimeSpan.FromHours(16.5), newTask2.DueDate);
+
+            Assert.AreEqual("Eat the pies", newTask3.GetDescription());
+            Assert.AreEqual(DateTime.Today + TimeSpan.FromHours(9) + TimeSpan.FromMinutes(12), newTask3.DueDate);
+
+            Assert.AreEqual("Call Pope", newTask4.GetDescription());
+            Assert.AreEqual(DateTime.Today + TimeSpan.FromHours(11.75), newTask4.DueDate);
+
+            Assert.AreEqual("RESISTANCE IS FUTILE", newTask5.GetDescription());
+            Assert.AreEqual(DateTime.Today + TimeSpan.FromHours(19.5), newTask5.DueDate);
+        }
+
+        [TestMethod]
+        public void TestNaturalTasksWithValidDates()
+        {
+            Task newTask1 = StringParse.ParseNaturalTaskCreation("Eat by MONDAY the pies");
+            Task newTask2 = StringParse.ParseNaturalTaskCreation("Buy some books ON TUESDAY");
+            Task newTask3 = StringParse.ParseNaturalTaskCreation("Remind myself to pay the bills AT SATURDAY");
+            Task newTask4 = StringParse.ParseNaturalTaskCreation("next   tomorrow Buy kittens or something");
+            Task newTask5 = StringParse.ParseNaturalTaskCreation("On this today... just chill");
+            Task newTask6 = StringParse.ParseNaturalTaskCreation("Make a note for Friday to summon Gandalf");
+
+            Assert.AreEqual("Eat the pies", newTask1.GetDescription());
+            Assert.AreEqual(DayOfWeek.Monday, newTask1.DueDate.Value.DayOfWeek);
+
+            Assert.AreEqual("Buy some books", newTask2.GetDescription());
+            Assert.AreEqual(DayOfWeek.Tuesday, newTask2.DueDate.Value.DayOfWeek);
+
+            Assert.AreEqual("Remind myself to pay the bills", newTask3.GetDescription());
+            Assert.AreEqual(DayOfWeek.Saturday, newTask3.DueDate.Value.DayOfWeek);
+
+            Assert.AreEqual("Buy kittens or something", newTask4.GetDescription());
+            Assert.AreEqual(DateTime.Today.AddDays(8), newTask4.DueDate);
+
+            Assert.AreEqual("just chill", newTask5.GetDescription());
+            Assert.AreEqual(DateTime.Today, newTask5.DueDate);
+
+            Assert.AreEqual("Make a note to summon Gandalf", newTask6.GetDescription());
+            Assert.AreEqual(DayOfWeek.Friday, newTask6.DueDate.Value.DayOfWeek);
+        }
+
+        [TestMethod]
+        public void TestNaturalTasksWithValidDatesAndTimes()
+        {
+            Task newTask1 = StringParse.ParseNaturalTaskCreation("Eat the food by MONDAY at 12 o'clock");
+            Task newTask2 = StringParse.ParseNaturalTaskCreation("Go to town at 7:10 am on Tuesday");
+            Task newTask3 = StringParse.ParseNaturalTaskCreation("On Wednesday, buy a coat, at 4 oclock am");
+            Task newTask4 = StringParse.ParseNaturalTaskCreation("Before zero get outta town on Thursday");
+            Task newTask5 = StringParse.ParseNaturalTaskCreation("For Friday by 6:05 make pancakes");
+            Task newTask6 = StringParse.ParseNaturalTaskCreation("At twenty:17 on Satuday get jiggy with it");
+
+            Assert.AreEqual("Eat the food", newTask1.GetDescription());
+            Assert.AreEqual(DayOfWeek.Monday, newTask1.DueDate.Value.DayOfWeek);
+            Assert.AreEqual(12, newTask1.DueDate.Value.Hour);
+            Assert.AreEqual(0, newTask1.DueDate.Value.Minute);
+
+            Assert.AreEqual("Go to town", newTask2.GetDescription());
+            Assert.AreEqual(DayOfWeek.Tuesday, newTask2.DueDate.Value.DayOfWeek);
+            Assert.AreEqual(7, newTask2.DueDate.Value.Hour);
+            Assert.AreEqual(10, newTask2.DueDate.Value.Minute);
+
+            Assert.AreEqual("buy a coat", newTask3.GetDescription());
+            Assert.AreEqual(DayOfWeek.Wednesday, newTask3.DueDate.Value.DayOfWeek);
+            Assert.AreEqual(4, newTask3.DueDate.Value.Hour);
+            Assert.AreEqual(0, newTask3.DueDate.Value.Minute);
+
+            Assert.AreEqual("get outta town", newTask4.GetDescription());
+            Assert.AreEqual(DayOfWeek.Thursday, newTask4.DueDate.Value.DayOfWeek);
+            Assert.AreEqual(0, newTask4.DueDate.Value.Hour);
+            Assert.AreEqual(0, newTask4.DueDate.Value.Minute);
+
+            Assert.AreEqual("make pancakes", newTask5.GetDescription());
+            Assert.AreEqual(DayOfWeek.Friday, newTask5.DueDate.Value.DayOfWeek);
+            Assert.AreEqual(6, newTask5.DueDate.Value.Hour);
+            Assert.AreEqual(5, newTask5.DueDate.Value.Minute);
+
+            Assert.AreEqual("get jiggy with it", newTask6.GetDescription());
+            Assert.AreEqual(DayOfWeek.Saturday, newTask6.DueDate.Value.DayOfWeek);
+            Assert.AreEqual(20, newTask6.DueDate.Value.Hour);
+            Assert.AreEqual(17, newTask6.DueDate.Value.Minute);
+        }
+
+        [TestMethod]
+        public void TestAssessmentExamples()
+        {
+            Task testTask = new("Call Rob");
+
+            int daysUntilWednesday = ((int)DayOfWeek.Wednesday - (int)DateTime.Today.DayOfWeek + 7) % 7;
+            testTask.DueDate = DateTime.Today + TimeSpan.FromDays(daysUntilWednesday) + TimeSpan.FromHours(15);
+
+            Task newTask1 = StringParse.ParseNaturalTaskCreation("Call Rob on Wednesday at three PM");
+            Task newTask2 = StringParse.ParseNaturalTaskCreation("Call Rob at three PM on Wednesday");
+            Task newTask3 = StringParse.ParseNaturalTaskCreation("Call Rob");
+            Task newTask4 = StringParse.ParseNaturalTaskCreation("Call Rob, three PM, Wednesday");
+            Task newTask5 = StringParse.ParseNaturalTaskCreation("Call Rob, Wednesday, three PM");
+            Task newTask6 = StringParse.ParseNaturalTaskCreation("Call Rob three PM Wednesday");
+            Task newTask7 = StringParse.ParseNaturalTaskCreation("Call Rob Wednesday three PM");
+
+            Assert.AreEqual(testTask.GetDescription(), newTask1.GetDescription());
+            Assert.AreEqual(testTask.DueDate, newTask1.DueDate);
+            Assert.AreEqual(testTask.GetDescription(), newTask1.GetDescription());
+
+            Assert.AreEqual(testTask.GetDescription(), newTask2.GetDescription());
+            Assert.AreEqual(testTask.DueDate, newTask2.DueDate);
+            Assert.AreEqual(testTask.GetDescription(), newTask2.GetDescription());
+
+            Assert.AreEqual(testTask.GetDescription(), newTask3.GetDescription());
+
+            Assert.AreEqual(testTask.GetDescription(), newTask4.GetDescription());
+            Assert.AreEqual(testTask.DueDate, newTask4.DueDate);
+            Assert.AreEqual(testTask.GetDescription(), newTask4.GetDescription());
+
+            Assert.AreEqual(testTask.GetDescription(), newTask5.GetDescription());
+            Assert.AreEqual(testTask.DueDate, newTask5.DueDate);
+            Assert.AreEqual(testTask.GetDescription(), newTask5.GetDescription());
+
+            Assert.AreEqual(testTask.GetDescription(), newTask6.GetDescription());
+            Assert.AreEqual(testTask.DueDate, newTask6.DueDate);
+            Assert.AreEqual(testTask.GetDescription(), newTask6.GetDescription());
+
+            Assert.AreEqual(testTask.GetDescription(), newTask7.GetDescription());
+            Assert.AreEqual(testTask.DueDate, newTask7.DueDate);
+            Assert.AreEqual(testTask.GetDescription(), newTask7.GetDescription());
+        }
+
+        [TestMethod]
+        public void TestNaturalTasksWithMissingTasks()
+        {
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTaskCreation("on Wednesday at three PM"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTaskCreation("at three PM on Wednesday"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTaskCreation(""));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTaskCreation(", three PM, Wednesday"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTaskCreation(", Wednesday, three PM"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTaskCreation("three PM Wednesday"));
+            Assert.ThrowsExactly<ArgumentException>(() => StringParse.ParseNaturalTaskCreation("Wednesday three PM"));
+        }
+
         #endregion
-
-
     }
 }
-
