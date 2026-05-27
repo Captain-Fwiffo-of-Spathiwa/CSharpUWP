@@ -17,7 +17,7 @@ namespace TaskManagement.Models
 
     public class Project : TaskList
     {
-        public float PercentComplete => (100.0f * (1.0f - (float)IncompleteTasksCount / (float)TotalTasksCount));
+        public float PercentComplete => TotalTasksCount == 0 ? 0 : (100.0f * (1.0f - (float)IncompleteTasksCount / (float)TotalTasksCount));
 
         public Project (string name) : base (name)
         {}

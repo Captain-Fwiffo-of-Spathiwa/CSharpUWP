@@ -79,7 +79,7 @@ namespace TaskManagement.Models
         public virtual bool IsComplete
         {
             get;
-            protected set;  // I'm never sure on YAGNI for private vs protected
+            set;
         }
 
         /// <summary>

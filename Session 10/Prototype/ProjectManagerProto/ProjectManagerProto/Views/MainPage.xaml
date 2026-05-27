@@ -1,26 +1,53 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage
+﻿<ContentPage
+    x:Class="ProjectManagerProto.Views.MainPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    x:Class="ProjectManagerProto.Views.MainPage">
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <VerticalStackLayout Padding="20" Spacing="12">
-        <Button Text="Add Project" Clicked="OnAddProjectClicked" />
-        <Button Text="Add Task To Selected Project" Clicked="OnAddTaskClicked" />
+    <Grid Padding="20" RowDefinitions="Auto,*" ColumnDefinitions="240,*" ColumnSpacing="20">
 
-        <ListView x:Name="ProjectsList">
-            <ListView.ItemTemplate>
+        <VerticalStackLayout Grid.RowSpan="2" Spacing="12">
+            <Label Text="Settings" FontSize="18" />
+
+            <Label Text="Order projects by" />
+            <RadioButton Content="Name" GroupName="ProjectSort" IsChecked="{Binding SortByName, Mode=TwoWay}" />
+            <RadioButton Content="Task count" GroupName="ProjectSort" IsChecked="{Binding SortByTaskCount, Mode=TwoWay}" />
+            <RadioButton Content="Completion percentage" GroupName="ProjectSort" IsChecked="{Binding SortByCompletionPercentage, Mode=TwoWay}" />
+
+            <Label Text="Show projects" Margin="0,16,0,0" />
+            <RadioButton Content="All" GroupName="ProjectFilter" IsChecked="{Binding FilterAll, Mode=TwoWay}" />
+            <RadioButton Content="Complete" GroupName="ProjectFilter" IsChecked="{Binding FilterComplete, Mode=TwoWay}" />
+            <RadioButton Content="Incomplete" GroupName="ProjectFilter" IsChecked="{Binding FilterIncomplete, Mode=TwoWay}" />
+        </VerticalStackLayout>
+
+        <Button
+            Grid.Column="1"
+            Text="Add New Project"
+            Clicked="OnAddProjectClicked" />
+
+        <CollectionView
+            Grid.Row="1"
+            Grid.Column="1"
+            ItemsSource="{Binding Projects}"
+            SelectedItem="{Binding SelectedProject, Mode=TwoWay}"
+            SelectionMode="Single">
+
+            <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <ViewCell>
-                        <Grid Padding="8" ColumnDefinitions="*,Auto,Auto,Auto">
-                            <Label Grid.Column="0" Text="{Binding .}" />
+                    <Border Padding="10" Margin="0,0,0,8">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer NumberOfTapsRequired="2" Tapped="OnProjectDoubleTapped" />
+                        </Border.GestureRecognizers>
+
+                        <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="16">
+                            <Label Grid.Column="0" Text="{Binding Name}" />
                             <Label Grid.Column="1" Text="{Binding TotalTasksCount, StringFormat='Tasks: {0}'}" />
                             <Label Grid.Column="2" Text="{Binding IncompleteTasksCount, StringFormat='Incomplete: {0}'}" />
                             <Label Grid.Column="3" Text="{Binding PercentComplete, StringFormat='{0:0}%'}" />
                         </Grid>
-                    </ViewCell>
+                    </Border>
                 </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-    </VerticalStackLayout>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </Grid>
 </ContentPage>

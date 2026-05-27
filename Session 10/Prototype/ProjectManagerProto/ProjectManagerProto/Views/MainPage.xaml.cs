@@ -1,52 +1,57 @@
 ﻿// Views/MainPage.xaml.cs
-using System.Collections.ObjectModel;
+using ProjectManagerProto.ViewModels;
 using TaskManagement.Models;
 
 namespace ProjectManagerProto.Views;
 
 public partial class MainPage : ContentPage
 {
-    private readonly TaskCollection _taskCollection = new();
-    private readonly ObservableCollection<Project> _projects = new();
+    private readonly MainViewModel _viewModel = new();
+    private readonly Dictionary<Project, Window> _openProjectWindows = new();
 
     public MainPage()
     {
         InitializeComponent();
-
-        ProjectsList.ItemsSource = _projects;
-
-        AddProject("Prototype Project");
-        AddTaskToProject(_projects[0]);
+        BindingContext = _viewModel;
     }
 
-    private void OnAddProjectClicked(object sender, EventArgs e)
+    private async void OnAddProjectClicked(object sender, EventArgs e)
     {
-        AddProject($"Project {_projects.Count + 1}");
-    }
+        var name = await DisplayPromptAsync("Add Project", "Project name");
 
-    private void OnAddTaskClicked(object sender, EventArgs e)
-    {
-        if (ProjectsList.SelectedItem is Project project)
+        if (!string.IsNullOrWhiteSpace(name))
         {
-            AddTaskToProject(project);
+            _viewModel.AddProject(name);
         }
     }
 
-    private void AddProject(string name)
+    private void OnProjectDoubleTapped(object sender, TappedEventArgs e)
     {
-        var project = new Project(name);
+        if (sender is not BindableObject bindableObject)
+        {
+            return;
+        }
 
-        _taskCollection.AddTaskList(project);
-        _projects.Add(project);
-    }
+        if (bindableObject.BindingContext is not MainViewModel.ProjectItemViewModel projectItem)
+        {
+            return;
+        }
 
-    private void AddTaskToProject(Project project)
-    {
-        project.AddTask(new TaskManagement.Models.Task($"Task {project.TotalTasksCount + 1}"));
+        if (_openProjectWindows.ContainsKey(projectItem.Project))
+        {
+            return;
+        }
 
-        var index = _projects.IndexOf(project);
-        _projects.RemoveAt(index);
-        _projects.Insert(index, project);
-        ProjectsList.SelectedItem = project;
+        var page = new ProjectWindowPage(new ProjectViewModel(projectItem.Project));
+        var window = new Window(page)
+        {
+            Title = projectItem.Name
+        };
+
+        window.Destroying += (_, _) => _openProjectWindows.Remove(projectItem.Project);
+
+        _openProjectWindows[projectItem.Project] = window;
+
+        Application.Current?.OpenWindow(window);
     }
 }
