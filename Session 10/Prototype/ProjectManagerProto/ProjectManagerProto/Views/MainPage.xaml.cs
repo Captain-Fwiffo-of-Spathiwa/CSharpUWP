@@ -1,5 +1,4 @@
-﻿// Views/MainPage.xaml.cs
-using ProjectManagerProto.ViewModels;
+﻿using ProjectManagerProto.ViewModels;
 using TaskManagement.Models;
 
 namespace ProjectManagerProto.Views;
@@ -43,6 +42,7 @@ public partial class MainPage : ContentPage
         }
 
         var page = new ProjectWindowPage(new ProjectViewModel(projectItem.Project));
+        page.ProjectChanged += (_, _) => _viewModel.RefreshProjects();
         var window = new Window(page)
         {
             Title = projectItem.Name

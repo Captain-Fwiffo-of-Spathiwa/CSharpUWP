@@ -98,7 +98,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         RefreshProjects();
     }
 
-    private void RefreshProjects()
+    public void RefreshProjects()
     {
         var projects = _taskCollection
             .GetTaskLists()

@@ -1,4 +1,3 @@
-// Views/ProjectWindowPage.xaml.cs
 using ProjectManagerProto.ViewModels;
 
 namespace ProjectManagerProto.Views;
@@ -7,6 +6,7 @@ public partial class ProjectWindowPage : ContentPage
 {
     private readonly ProjectViewModel _viewModel;
     private bool _taskDialogOpen;
+    public event EventHandler? ProjectChanged;
 
     public ProjectWindowPage(ProjectViewModel viewModel)
     {
@@ -23,6 +23,7 @@ public partial class ProjectWindowPage : ContentPage
         if (!string.IsNullOrWhiteSpace(description))
         {
             _viewModel.AddTask(description);
+            ProjectChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 
@@ -49,5 +50,6 @@ public partial class ProjectWindowPage : ContentPage
 
         _taskDialogOpen = false;
         _viewModel.RefreshTasks();
+        ProjectChanged?.Invoke(this, EventArgs.Empty);
     }
 }
