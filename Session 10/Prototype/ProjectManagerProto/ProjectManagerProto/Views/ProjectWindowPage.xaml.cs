@@ -46,10 +46,15 @@ public partial class ProjectWindowPage : ContentPage
 
         _taskDialogOpen = true;
 
-        await Navigation.PushModalAsync(new TaskDialogPage(new TaskViewModel(taskItem.Task)));
+        var dialog = new TaskDialogPage(new TaskViewModel(taskItem.Task));
 
-        _taskDialogOpen = false;
-        _viewModel.RefreshTasks();
-        ProjectChanged?.Invoke(this, EventArgs.Empty);
+        dialog.Closed += (_, _) =>
+        {
+            _taskDialogOpen = false;
+            _viewModel.RefreshTasks();
+            ProjectChanged?.Invoke(this, EventArgs.Empty);
+        };
+
+        await Navigation.PushModalAsync(dialog);
     }
 }

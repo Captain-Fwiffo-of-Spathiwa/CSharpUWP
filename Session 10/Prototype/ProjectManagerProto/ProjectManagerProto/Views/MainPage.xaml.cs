@@ -48,7 +48,11 @@ public partial class MainPage : ContentPage
             Title = projectItem.Name
         };
 
-        window.Destroying += (_, _) => _openProjectWindows.Remove(projectItem.Project);
+        window.Destroying += (_, _) =>
+        {
+            _openProjectWindows.Remove(projectItem.Project);
+            _viewModel.RefreshProjects();
+        };
 
         _openProjectWindows[projectItem.Project] = window;
 

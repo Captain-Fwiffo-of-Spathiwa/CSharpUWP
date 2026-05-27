@@ -4,6 +4,8 @@ namespace ProjectManagerProto.Views;
 
 public partial class TaskDialogPage : ContentPage
 {
+    public event EventHandler? Closed;
+
     public TaskDialogPage(TaskViewModel viewModel)
     {
         InitializeComponent();
@@ -12,6 +14,7 @@ public partial class TaskDialogPage : ContentPage
 
     private async void OnCloseClicked(object sender, EventArgs e)
     {
+        Closed?.Invoke(this, EventArgs.Empty);
         await Navigation.PopModalAsync();
     }
 }
