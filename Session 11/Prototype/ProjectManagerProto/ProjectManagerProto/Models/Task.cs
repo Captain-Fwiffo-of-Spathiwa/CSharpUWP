@@ -11,7 +11,6 @@
      information
   [] display an icon to indicate a reminder or
      notes in a task and so on
-
  -----------------------------------------------*/
 
 

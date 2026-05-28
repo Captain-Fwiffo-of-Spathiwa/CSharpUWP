@@ -1,10 +1,12 @@
 using ProjectManagerProto.ViewModels;
+using CommunityToolkit.Maui.Views;
+
 
 namespace ProjectManagerProto.Views;
 
-public partial class TaskDialogPage : ContentPage
+public partial class TaskDialogPage : Popup
 {
-    public event EventHandler? Closed;
+    //public event EventHandler? Closed;
 
     public TaskDialogPage(TaskViewModel viewModel)
     {
@@ -14,7 +16,8 @@ public partial class TaskDialogPage : ContentPage
 
     private async void OnCloseClicked(object sender, EventArgs e)
     {
-        Closed?.Invoke(this, EventArgs.Empty);
-        await Navigation.PopModalAsync();
+        this.Close();
+        //Closed?.Invoke(this, EventArgs.Empty);
+        //await Navigation.PopModalAsync();
     }
 }

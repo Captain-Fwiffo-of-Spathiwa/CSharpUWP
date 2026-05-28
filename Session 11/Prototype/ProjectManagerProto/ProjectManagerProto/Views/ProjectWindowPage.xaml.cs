@@ -1,6 +1,8 @@
 using ProjectManagerProto.ViewModels;
-
 namespace ProjectManagerProto.Views;
+using CommunityToolkit.Maui.Views;
+
+
 
 public partial class ProjectWindowPage : ContentPage
 {
@@ -48,13 +50,20 @@ public partial class ProjectWindowPage : ContentPage
 
         var dialog = new TaskDialogPage(new TaskViewModel(taskItem.Task));
 
-        dialog.Closed += (_, _) =>
-        {
-            _taskDialogOpen = false;
-            _viewModel.RefreshTasks();
-            ProjectChanged?.Invoke(this, EventArgs.Empty);
-        };
+        await this.ShowPopupAsync(dialog);
 
-        await Navigation.PushModalAsync(dialog);
+        // Code execution resumes here after the popup closes
+        _taskDialogOpen = false;
+        _viewModel.RefreshTasks();
+        ProjectChanged?.Invoke(this, EventArgs.Empty);
+
+        //dialog.Closed += (_, _) =>
+        //{
+        //    _taskDialogOpen = false;
+        //    _viewModel.RefreshTasks();
+        //    ProjectChanged?.Invoke(this, EventArgs.Empty);
+        //};
+
+        //await Navigation.PushModalAsync(dialog);
     }
 }

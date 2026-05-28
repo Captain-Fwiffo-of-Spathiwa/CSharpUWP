@@ -1,8 +1,7 @@
-<ContentPage
-    x:Class="ProjectManagerProto.Views.TaskDialogPage"
-    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    Title="Task">
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               x:Class="ProjectManagerProto.Views.TaskDialogPage">
 
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="12">
@@ -30,4 +29,4 @@
 
         </VerticalStackLayout>
     </ScrollView>
-</ContentPage>
+</toolkit:Popup>
