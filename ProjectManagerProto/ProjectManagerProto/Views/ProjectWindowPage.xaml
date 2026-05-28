@@ -1,0 +1,56 @@
+<!-- Views/ProjectWindowPage.xaml -->
+<ContentPage
+    x:Class="ProjectManagerProto.Views.ProjectWindowPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="{Binding ProjectName}">
+
+    <Grid Padding="20" RowDefinitions="Auto,*" ColumnDefinitions="240,*" ColumnSpacing="20">
+
+        <VerticalStackLayout Grid.RowSpan="2" Spacing="12">
+            <Label Text="{Binding ProjectName}" FontSize="18" />
+
+            <Label Text="Order tasks by" />
+            <RadioButton Content="Name" GroupName="TaskSort" IsChecked="{Binding SortByName, Mode=TwoWay}" />
+            <RadioButton Content="Due date" GroupName="TaskSort" IsChecked="{Binding SortByDueDate, Mode=TwoWay}" />
+            <RadioButton Content="Priority" GroupName="TaskSort" IsChecked="{Binding SortByPriority, Mode=TwoWay}" />
+
+            <Label Text="Show tasks" Margin="0,16,0,0" />
+            <RadioButton Content="All" GroupName="TaskFilter" IsChecked="{Binding FilterAll, Mode=TwoWay}" />
+            <RadioButton Content="Complete" GroupName="TaskFilter" IsChecked="{Binding FilterComplete, Mode=TwoWay}" />
+            <RadioButton Content="Incomplete" GroupName="TaskFilter" IsChecked="{Binding FilterIncomplete, Mode=TwoWay}" />
+            <RadioButton Content="Overdue" GroupName="TaskFilter" IsChecked="{Binding FilterOverdue, Mode=TwoWay}" />
+        </VerticalStackLayout>
+
+        <Button
+            Grid.Column="1"
+            Text="Add New Task"
+            Clicked="OnAddTaskClicked" />
+
+        <CollectionView
+            Grid.Row="1"
+            Grid.Column="1"
+            ItemsSource="{Binding Tasks}"
+            SelectionMode="None">
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Padding="10" Margin="0,0,0,8">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer NumberOfTapsRequired="2" Tapped="OnTaskDoubleTapped" />
+                        </Border.GestureRecognizers>
+
+                        <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto" ColumnSpacing="16">
+                            <Label Grid.Column="0" Text="{Binding Status}" />
+                            <Label Grid.Column="1" Text="{Binding Description}" />
+                            <Label Grid.Column="2" Text="{Binding DateCreated, StringFormat='Created: {0:d}'}" />
+                            <Label Grid.Column="3" Text="{Binding DueDate, StringFormat='Due: {0:d}'}" />
+                            <Label Grid.Column="4" Text="{Binding PriorityValue, StringFormat='Priority: {0}'}" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </Grid>
+</ContentPage>
