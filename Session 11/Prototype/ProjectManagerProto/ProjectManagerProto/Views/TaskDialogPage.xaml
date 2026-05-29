@@ -3,8 +3,8 @@
                xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
                x:Class="ProjectManagerProto.Views.TaskDialogPage">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="12">
+    <ScrollView WidthRequest="600" HeightRequest="300" BackgroundColor="Black">
+        <VerticalStackLayout Padding="20" Spacing="12"  HorizontalOptions="Center" VerticalOptions="Center" BackgroundColor="White" WidthRequest="580">
 
             <Label Text="Description" />
             <Entry Text="{Binding Description}" />

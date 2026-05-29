@@ -14,7 +14,7 @@ public partial class TaskDialogPage : Popup
         BindingContext = viewModel;
     }
 
-    private async void OnCloseClicked(object sender, EventArgs e)
+    private void OnCloseClicked(object sender, EventArgs e)
     {
         this.Close();
         //Closed?.Invoke(this, EventArgs.Empty);
