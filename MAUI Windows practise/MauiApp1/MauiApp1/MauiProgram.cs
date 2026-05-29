@@ -25,7 +25,7 @@ namespace MauiApp1
                         var windowHandle = WinRT.Interop.WindowNative.GetWindowHandle(window);
                         var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(windowHandle);
                         var appWindow = AppWindow.GetFromWindowId(windowId);
-                        appWindow.MoveAndResize(new Windows.Graphics.RectInt32(100, 100, 1366, 768));
+                        appWindow.MoveAndResize(new Windows.Graphics.RectInt32(20, 20, 800, 600));
                     });
                 });
                 #endif
