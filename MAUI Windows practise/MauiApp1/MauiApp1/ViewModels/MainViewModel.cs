@@ -27,7 +27,7 @@ namespace MauiApp1.ViewModels
         {
             if (selectedItem == null) return;
 
-#if WINDOWS
+            #if WINDOWS
             var window = new Window(new ContentPage 
             { 
                 Title = selectedItem.Title,
@@ -49,7 +49,9 @@ namespace MauiApp1.ViewModels
             var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(windowHandle);
             var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
             
-            appWindow.MoveAndResize(new Windows.Graphics.RectInt32(200, 200, 1366, 768));
+            //appWindow.MoveAndResize(new Windows.Graphics.RectInt32(1400, 100, 800, 600));
+            appWindow.Move(new Windows.Graphics.PointInt32(1400, 100));
+            appWindow.Resize(new Windows.Graphics.SizeInt32(800, 600));
 #endif
         }
     }
