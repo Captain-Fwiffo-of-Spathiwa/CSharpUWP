@@ -25,29 +25,10 @@ namespace ProjectManagerProto.Views
         private void OnMainWindowDestroying(object? sender, EventArgs e)
         {
             System.Diagnostics.Debug.WriteLine("\n\n\n\n\n\n\n\nDest");
+            ProjectManagerProto.ViewModels.ProjectsViewModel.CloseAllProjectWindows();
         }
 
-        private void OnProjectDoubleClicked(object? project)
-        {
-#if WINDOWS
-            var mauiWinUIWindow = new Microsoft.Maui.Controls.Window
-            {
-                Page = new ContentPage
-                {
-                    Content = new Label
-                    {
-                        Text = "Dummy Window",
-                        HorizontalOptions = LayoutOptions.Center,
-                        VerticalOptions = LayoutOptions.Center,
-                        FontSize = 24
-                    }
-                },
-                Title = "Dummy Project Window"
-            };
-            Application.Current?.OpenWindow(mauiWinUIWindow);
-#endif
-            Debug.WriteLine("Double-clicked project: " + project);
-        }
+
 
     }
 }

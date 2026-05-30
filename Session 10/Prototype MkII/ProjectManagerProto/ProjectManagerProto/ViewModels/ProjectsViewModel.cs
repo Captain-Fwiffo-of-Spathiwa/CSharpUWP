@@ -10,6 +10,10 @@ namespace ProjectManagerProto.ViewModels
         public ObservableCollection<Project> Projects { get; }
         public ICommand ProjectDoubleTappedCommand { get; }
 
+#if WINDOWS
+        private static readonly Dictionary<Project, Microsoft.Maui.Controls.Window> _openWindows = new();
+#endif
+
         public ProjectsViewModel()
         {
             var sample = SampleData.Create();
@@ -23,10 +27,23 @@ namespace ProjectManagerProto.ViewModels
             ProjectDoubleTappedCommand = new Command<Project>(OnProjectDoubleClicked);
         }
 
-        private void OnProjectDoubleClicked(Project project)
+        private async void OnProjectDoubleClicked(Project project)
         {
             // Dummy window for Windows only
 #if WINDOWS
+            Microsoft.UI.Xaml.Window mauiWinUIWindow;
+
+            if (_openWindows.TryGetValue(project, out var existingWindow))
+            {
+                mauiWinUIWindow = existingWindow.Handler?.PlatformView as Microsoft.UI.Xaml.Window;
+                if (mauiWinUIWindow != null)
+                {
+                    await System.Threading.Tasks.Task.Delay(250);
+                    mauiWinUIWindow.Activate();
+                }
+                return;
+            }
+
             var window = new Microsoft.Maui.Controls.Window
             {
                 Page = new ContentPage
@@ -40,9 +57,17 @@ namespace ProjectManagerProto.ViewModels
                 },
                 Title = "Project Details"
             };
-            Application.Current.OpenWindow(window);
 
-            var mauiWinUIWindow = window.Handler?.PlatformView as Microsoft.UI.Xaml.Window;
+            _openWindows[project] = window;
+
+            window.Destroying += (s, e) =>
+            {
+                _openWindows.Remove(project);
+            };
+
+            Application.Current.OpenWindow(window);
+            
+            mauiWinUIWindow = window.Handler?.PlatformView as Microsoft.UI.Xaml.Window;
             if (mauiWinUIWindow != null)
             {
                 var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(
@@ -54,9 +79,26 @@ namespace ProjectManagerProto.ViewModels
                 {
                     appWindow.MoveAndResize(new Windows.Graphics.RectInt32(100, 700, 800, 600));
                 }
+                
+                await System.Threading.Tasks.Task.Delay(250);
+                mauiWinUIWindow?.Activate();
             }
-
 #endif
         }
+
+        public static void CloseAllProjectWindows()
+        {
+#if WINDOWS
+            foreach (var win in _openWindows.Values)
+            {
+                //win.Close();
+                Microsoft.Maui.Controls.Application.Current.CloseWindow(win);
+
+            }
+            _openWindows.Clear();
+#endif
+        }
+
+
     }
 }
