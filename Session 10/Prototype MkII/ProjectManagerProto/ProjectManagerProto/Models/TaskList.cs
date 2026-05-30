@@ -20,5 +20,7 @@ namespace ProjectManagerProto.Models
         public void DeleteAllCompletedTasks() => _tasks.RemoveAll(t => t.IsComplete);
         public IReadOnlyList<Task> GetTasks() => _tasks.AsReadOnly();
         public override string ToString() => _name;
+        public DateTime DateCreated { get; set; }
+
     }
 }
