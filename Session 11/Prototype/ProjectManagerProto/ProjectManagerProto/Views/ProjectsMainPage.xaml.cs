@@ -72,7 +72,6 @@ public partial class MainPage : ContentPage
 
         if (_openProjectWindows.TryGetValue(projectItem.Project, out var existingWindow))
         {
-
             // We need this delay on bringing the Project's window to the front,
             // otherwise the app's main window reclaims focus while it's still
             // finishing with the DoubleTap gesture.

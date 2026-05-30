@@ -1,9 +1,36 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ProjectManagerProto.ViewModels"
              x:Class="ProjectManagerProto.Views.TaskListPage"
              Title="Task List">
-    <StackLayout Padding="20">
-        <Label Text="Task List Page" FontSize="24" FontAttributes="Bold" />
-        <!-- Add your task list UI here -->
-    </StackLayout>
+    <ContentPage.BindingContext>
+        <vm:TaskListViewModel />
+    </ContentPage.BindingContext>
+
+    <Grid ColumnDefinitions="240, *">
+        <!-- Settings Section -->
+        <Grid Grid.Column="0" BackgroundColor="#EEE" Padding="16">
+            <Label Text="Settings" FontAttributes="Bold" FontSize="18" />
+            <!-- Settings controls go here -->
+        </Grid>
+
+        <!-- Tasks List Section -->
+        <Grid Grid.Column="1" Padding="16" RowDefinitions="Auto, *">
+            <Label Text="Tasks" FontAttributes="Bold" FontSize="18" Margin="0,0,0,8"/>
+            <CollectionView Grid.Row="1" ItemsSource="{Binding Tasks}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Stroke="#CCC" StrokeThickness="1" Margin="0,0,0,8" Padding="12">
+                            <Grid RowDefinitions="Auto,Auto,Auto,Auto">
+                                <Label Text="{Binding Description}" FontSize="16" FontAttributes="Bold"/>
+                                <Label Grid.Row="1" Text="{Binding IsComplete, StringFormat='Completed: {0}'}"/>
+                                <Label Grid.Row="2" Text="{Binding DateCreated, StringFormat='Created: {0:yyyy-MM-dd}'}"/>
+                                <Label Grid.Row="3" Text="{Binding DueDate, StringFormat='Due: {0:yyyy-MM-dd}'}"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+    </Grid>
 </ContentPage>

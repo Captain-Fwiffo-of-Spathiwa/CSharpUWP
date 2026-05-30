@@ -23,6 +23,7 @@
             TaskPriority = new Priority(1);
         }
 
+        public string Description => _description;
         public string GetDescription() => _description;
         public void SetDescription(string desc) => _description = desc;
         public void ToggleCompletion() => IsComplete = !IsComplete;

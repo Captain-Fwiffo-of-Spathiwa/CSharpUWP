@@ -1,13 +1,25 @@
-﻿using System.Collections.ObjectModel;
+﻿using ProjectManagerProto.Models;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using ProjectManagerProto.Models;
+using Task = System.Threading.Tasks.Task;
 
 namespace ProjectManagerProto.ViewModels
 {
-    public class ProjectsViewModel
+    public class ProjectsViewModel : INotifyPropertyChanged
     {
-        public ObservableCollection<Project> Projects { get; }
+        private readonly TaskCollection SavedProjects = new();
+        public ObservableCollection<DisplayedProjectItem> DisplayedProjects { get; } = new();
+
         public ICommand ProjectDoubleTappedCommand { get; }
+        public ICommand AddProjectCommand { get; }
+        public ICommand DeleteCompletedProjectsCommand { get; }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private ProjectSortMode _sortMode = ProjectSortMode.Name;
+        private ProjectFilterMode _filterMode = ProjectFilterMode.All;
+
 
         #if WINDOWS
         private static readonly Dictionary<Project, Microsoft.Maui.Controls.Window> _openWindows = new();
@@ -16,23 +28,26 @@ namespace ProjectManagerProto.ViewModels
         public ProjectsViewModel()
         {
             var sample = SampleData.Create();
-            Projects = new ObservableCollection<Project>();
             foreach (var list in sample.GetTaskLists())
             {
                 if (list is Project project)
-                    Projects.Add(project);
+                {
+                    SavedProjects.AddTaskList(project);
+                }
             }
+            RefreshProjects();
 
-            ProjectDoubleTappedCommand = new Command<Project>(OnProjectDoubleClicked);
+            ProjectDoubleTappedCommand = new Command<DisplayedProjectItem>(OnProjectDoubleClicked);
+            DeleteCompletedProjectsCommand = new Command(async () => await DeleteCompletedProjects());
+            AddProjectCommand = new Command(async () => await AddProjectAsync());
         }
 
-        private async void OnProjectDoubleClicked(Project project)
+        private async void OnProjectDoubleClicked(DisplayedProjectItem projectItem)
         {
-            // Dummy window for Windows only
             #if WINDOWS
             Microsoft.UI.Xaml.Window mauiWinUIWindow;
 
-            if (_openWindows.TryGetValue(project, out var existingWindow))
+            if (_openWindows.TryGetValue(projectItem.Project, out var existingWindow))
             {
                 mauiWinUIWindow = existingWindow.Handler?.PlatformView as Microsoft.UI.Xaml.Window;
                 if (mauiWinUIWindow != null)
@@ -45,23 +60,15 @@ namespace ProjectManagerProto.ViewModels
 
             var window = new Microsoft.Maui.Controls.Window
             {
-                Page = new ContentPage
-                {
-                    Content = new Label
-                    {
-                        Text = $"Project: {project?.Name ?? "Unknown"}",
-                        VerticalOptions = LayoutOptions.Center,
-                        HorizontalOptions = LayoutOptions.Center
-                    }
-                },
+                Page = new ProjectManagerProto.Views.TaskListPage(projectItem.Project),
                 Title = "Project Details"
             };
 
-            _openWindows[project] = window;
+            _openWindows[projectItem.Project] = window;
 
             window.Destroying += (s, e) =>
             {
-                _openWindows.Remove(project);
+                _openWindows.Remove(projectItem.Project);
             };
 
             Application.Current.OpenWindow(window);
@@ -96,6 +103,139 @@ namespace ProjectManagerProto.ViewModels
             #endif
         }
 
+        private async Task AddProjectAsync()
+        {
+            string result = await Application.Current.MainPage.DisplayPromptAsync(
+                "New Project", "Enter project name:", "OK", "Cancel", "Project name");
+            if (!string.IsNullOrWhiteSpace(result))
+            {
+                var project = new Project(result);
+                SavedProjects.AddTaskList(project);
+                RefreshProjects();
+            }
+        }
+
+        private async Task DeleteCompletedProjects()
+        {
+            bool confirm = await Application.Current.MainPage.DisplayAlert(
+                "Warning",
+                "Are you sure you want to delete all completed projects?",
+                "Yes", "No");
+            if (confirm)
+            {
+                SavedProjects.DeleteAllCompletedTaskLists();
+                RefreshProjects();
+            }
+        }
+
+        public bool SortByName
+        {
+            get => _sortMode == ProjectSortMode.Name;
+            set { if (value) SetSortMode(ProjectSortMode.Name); }
+        }
+
+        public bool SortByTaskCount
+        {
+            get => _sortMode == ProjectSortMode.TaskCount;
+            set { if (value) SetSortMode(ProjectSortMode.TaskCount); }
+        }
+
+        public bool SortByCompletionPercentage
+        {
+            get => _sortMode == ProjectSortMode.CompletionPercentage;
+            set { if (value) SetSortMode(ProjectSortMode.CompletionPercentage); }
+        }
+
+        public bool FilterAll
+        {
+            get => _filterMode == ProjectFilterMode.All;
+            set { if (value) SetFilterMode(ProjectFilterMode.All); }
+        }
+
+        public bool FilterComplete
+        {
+            get => _filterMode == ProjectFilterMode.Complete;
+            set { if (value) SetFilterMode(ProjectFilterMode.Complete); }
+        }
+
+        public bool FilterIncomplete
+        {
+            get => _filterMode == ProjectFilterMode.Incomplete;
+            set { if (value) SetFilterMode(ProjectFilterMode.Incomplete); }
+        }
+
+        private void SetSortMode(ProjectSortMode sortMode)
+        {
+            _sortMode = sortMode;
+
+            OnPropertyChanged(nameof(SortByName));
+            OnPropertyChanged(nameof(SortByTaskCount));
+            OnPropertyChanged(nameof(SortByCompletionPercentage));
+
+            RefreshProjects();
+        }
+
+        private void SetFilterMode(ProjectFilterMode filterMode)
+        {
+            _filterMode = filterMode;
+
+            OnPropertyChanged(nameof(FilterAll));
+            OnPropertyChanged(nameof(FilterComplete));
+            OnPropertyChanged(nameof(FilterIncomplete));
+
+            RefreshProjects();
+        }
+
+        public void RefreshProjects()
+        {
+            // Get all the TaskLists stored in SavedProjects
+            var projects = SavedProjects
+                .GetTaskLists()
+                .Select(taskList => taskList as Project ?? throw new InvalidOperationException("TaskCollection contains a non-Project TaskList."));
+
+            // This switch returns a filtered version of projects, based on what ProjectFilterMode is
+            projects = _filterMode switch
+            {
+                ProjectFilterMode.Complete => projects.Where(project => project.PercentComplete >= 100),
+                ProjectFilterMode.Incomplete => projects.Where(project => project.PercentComplete < 100),
+                _ => projects
+            };
+
+            // This switch returns a different ordering of projects, based on what ProjectSortMode is
+            projects = _sortMode switch
+            {
+                ProjectSortMode.TaskCount => projects.OrderByDescending(project => project.TotalTasksCount),
+                ProjectSortMode.CompletionPercentage => projects.OrderByDescending(project => project.PercentComplete),
+                _ => projects.OrderBy(project => project.GetName())
+            };
+
+            DisplayedProjects.Clear();
+
+            foreach (var project in projects)
+            {
+                DisplayedProjects.Add(new DisplayedProjectItem(project));
+            }
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public sealed class DisplayedProjectItem
+        {
+            public Project Project { get; }
+
+            public string Name => Project.GetName();
+            public int TotalTasksCount => Project.TotalTasksCount;
+            public int IncompleteTasksCount => Project.IncompleteTasksCount;
+            public float PercentComplete => Project.PercentComplete;
+
+            public DisplayedProjectItem(Project project)
+            {
+                Project = project;
+            }
+        }
 
     }
 }

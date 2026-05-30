@@ -1,11 +1,14 @@
+using ProjectManagerProto.Models;
+using ProjectManagerProto.ViewModels;
+
 namespace ProjectManagerProto.Views
 {
     public partial class TaskListPage : ContentPage
     {
-        public TaskListPage(object project)
+        public TaskListPage(Project project)
         {
             InitializeComponent();
-            BindingContext = project;
+            BindingContext = new TaskListViewModel(project);
         }
     }
 }

@@ -17,5 +17,25 @@
         {
             ViewModels.ProjectsViewModel.CloseAllProjectWindows();
         }
+
+        void OnAddButtonPressed(object sender, EventArgs e)
+        {
+            ((Button)sender).BackgroundColor = Colors.Green;
+        }
+
+        void OnAddButtonReleased(object sender, EventArgs e)
+        {
+            ((Button)sender).BackgroundColor = Colors.LimeGreen;
+        }
+
+        void OnDeleteButtonPressed(object sender, EventArgs e)
+        {
+            ((Button)sender).BackgroundColor = Colors.Maroon;
+        }
+
+        void OnDeleteButtonReleased(object sender, EventArgs e)
+        {
+            ((Button)sender).BackgroundColor = Colors.DarkRed;
+        }
     }
 }
