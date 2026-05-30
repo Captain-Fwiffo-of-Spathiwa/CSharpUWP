@@ -1,5 +1,3 @@
-using Microsoft.Maui.Controls;
-
 namespace ProjectManagerProto.Views
 {
     public partial class TaskListPage : ContentPage
@@ -7,7 +5,6 @@ namespace ProjectManagerProto.Views
         public TaskListPage(object project)
         {
             InitializeComponent();
-            // Use the project object as needed, e.g., set BindingContext
             BindingContext = project;
         }
     }

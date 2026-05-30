@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using ProjectManagerProto.Models;
-using Microsoft.Maui.Controls;
 
 namespace ProjectManagerProto.ViewModels
 {
@@ -10,9 +9,9 @@ namespace ProjectManagerProto.ViewModels
         public ObservableCollection<Project> Projects { get; }
         public ICommand ProjectDoubleTappedCommand { get; }
 
-#if WINDOWS
+        #if WINDOWS
         private static readonly Dictionary<Project, Microsoft.Maui.Controls.Window> _openWindows = new();
-#endif
+        #endif
 
         public ProjectsViewModel()
         {
@@ -30,7 +29,7 @@ namespace ProjectManagerProto.ViewModels
         private async void OnProjectDoubleClicked(Project project)
         {
             // Dummy window for Windows only
-#if WINDOWS
+            #if WINDOWS
             Microsoft.UI.Xaml.Window mauiWinUIWindow;
 
             if (_openWindows.TryGetValue(project, out var existingWindow))
@@ -83,20 +82,18 @@ namespace ProjectManagerProto.ViewModels
                 await System.Threading.Tasks.Task.Delay(250);
                 mauiWinUIWindow?.Activate();
             }
-#endif
+            #endif
         }
 
         public static void CloseAllProjectWindows()
         {
-#if WINDOWS
+            #if WINDOWS
             foreach (var win in _openWindows.Values)
             {
-                //win.Close();
-                Microsoft.Maui.Controls.Application.Current.CloseWindow(win);
-
+                Application.Current.CloseWindow(win);
             }
             _openWindows.Clear();
-#endif
+            #endif
         }
 
 

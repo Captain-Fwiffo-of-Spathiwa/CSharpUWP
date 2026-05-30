@@ -1,11 +1,4 @@
-﻿using Microsoft.Maui.Controls;
-using Microsoft.Maui.Controls.Xaml;
-using ProjectManagerProto.Views;
-using System.Diagnostics;
-
-
-
-namespace ProjectManagerProto.Views
+﻿namespace ProjectManagerProto.Views
 {
     public partial class ProjectsMainPage : ContentPage
     {
@@ -17,18 +10,12 @@ namespace ProjectManagerProto.Views
 
         private void OnLoaded(object? sender, EventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine("message\n\n\n\n\n\n\n");
             Window.Destroying += OnMainWindowDestroying;
-
         }
 
         private void OnMainWindowDestroying(object? sender, EventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine("\n\n\n\n\n\n\n\nDest");
-            ProjectManagerProto.ViewModels.ProjectsViewModel.CloseAllProjectWindows();
+            ViewModels.ProjectsViewModel.CloseAllProjectWindows();
         }
-
-
-
     }
 }

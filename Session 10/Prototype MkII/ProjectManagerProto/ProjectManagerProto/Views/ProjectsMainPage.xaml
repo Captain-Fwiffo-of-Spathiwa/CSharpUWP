@@ -6,12 +6,14 @@
     <ContentPage.BindingContext>
         <vm:ProjectsViewModel />
     </ContentPage.BindingContext>
+
     <Grid ColumnDefinitions="240, *">
         <!-- Settings Section -->
         <Grid Grid.Column="0" BackgroundColor="#EEE" Padding="16">
             <Label Text="Settings" FontAttributes="Bold" FontSize="18" />
             <!-- Settings controls go here -->
         </Grid>
+        
         <!-- Projects List Section -->
         <Grid Grid.Column="1" Padding="16" RowDefinitions="Auto, *">
             <Label Text="Projects" FontAttributes="Bold" FontSize="18" Margin="0,0,0,8"/>
