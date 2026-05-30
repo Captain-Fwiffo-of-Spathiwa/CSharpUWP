@@ -8,27 +8,27 @@
     </ContentPage.BindingContext>
     <Grid ColumnDefinitions="240, *">
         <!-- Settings Section -->
-        <StackLayout Grid.Column="0" BackgroundColor="#EEE" Padding="16">
+        <Grid Grid.Column="0" BackgroundColor="#EEE" Padding="16">
             <Label Text="Settings" FontAttributes="Bold" FontSize="18" />
             <!-- Settings controls go here -->
-        </StackLayout>
+        </Grid>
         <!-- Projects List Section -->
-        <StackLayout Grid.Column="1" Padding="16">
+        <Grid Grid.Column="1" Padding="16" RowDefinitions="Auto, *">
             <Label Text="Projects" FontAttributes="Bold" FontSize="18" Margin="0,0,0,8"/>
-            <CollectionView ItemsSource="{Binding Projects}">
+            <CollectionView Grid.Row="1" ItemsSource="{Binding Projects}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Frame Margin="0,0,0,8" Padding="12" BorderColor="#CCC">
-                            <StackLayout>
+                        <Border Stroke="#CCC" StrokeThickness="1" Margin="0,0,0,8" Padding="12">
+                            <Grid RowDefinitions="Auto,Auto,Auto,Auto">
                                 <Label Text="{Binding Name}" FontSize="16" FontAttributes="Bold"/>
-                                <Label Text="{Binding TotalTasksCount, StringFormat='Tasks: {0}'}"/>
-                                <Label Text="{Binding PercentComplete, StringFormat='Complete: {0:F0}%'}"/>
-                                <Label Text="{Binding DateCreated, StringFormat='Created: {0:yyyy-MM-dd}'}"/>
-                            </StackLayout>
-                        </Frame>
+                                <Label Grid.Row="1" Text="{Binding TotalTasksCount, StringFormat='Tasks: {0}'}"/>
+                                <Label Grid.Row="2" Text="{Binding PercentComplete, StringFormat='Complete: {0:F0}%'}"/>
+                                <Label Grid.Row="3" Text="{Binding DateCreated, StringFormat='Created: {0:yyyy-MM-dd}'}"/>
+                            </Grid>
+                        </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-        </StackLayout>
+        </Grid>
     </Grid>
 </ContentPage>
