@@ -12,13 +12,13 @@ namespace ProjectManagerProto.ViewModels
         private readonly TaskCollection SavedProjects = new();
         public ObservableCollection<DisplayedProjectItem> DisplayedProjects { get; } = new();
 
-        public ICommand ProjectDoubleTappedCommand { get; }
+        public ICommand ProjectDoubleClickedCommand { get; }
         public ICommand AddProjectCommand { get; }
         public ICommand DeleteCompletedProjectsCommand { get; }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
         private ProjectSortMode _sortMode = ProjectSortMode.Name;
         private ProjectFilterMode _filterMode = ProjectFilterMode.All;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
 
         #if WINDOWS
@@ -37,9 +37,20 @@ namespace ProjectManagerProto.ViewModels
             }
             RefreshProjects();
 
-            ProjectDoubleTappedCommand = new Command<DisplayedProjectItem>(OnProjectDoubleClicked);
-            DeleteCompletedProjectsCommand = new Command(async () => await DeleteCompletedProjects());
+            ProjectDoubleClickedCommand = new Command<DisplayedProjectItem>(OnProjectDoubleClicked);
             AddProjectCommand = new Command(async () => await AddProjectAsync());
+            DeleteCompletedProjectsCommand = new Command(async () => await DeleteCompletedProjects());
+        }
+
+        public static void CloseAllProjectWindows()
+        {
+            #if WINDOWS
+            foreach (var win in _openWindows.Values)
+            {
+                Application.Current.CloseWindow(win);
+            }
+            _openWindows.Clear();
+            #endif
         }
 
         private async void OnProjectDoubleClicked(DisplayedProjectItem projectItem)
@@ -89,17 +100,6 @@ namespace ProjectManagerProto.ViewModels
                 await System.Threading.Tasks.Task.Delay(250);
                 mauiWinUIWindow?.Activate();
             }
-            #endif
-        }
-
-        public static void CloseAllProjectWindows()
-        {
-            #if WINDOWS
-            foreach (var win in _openWindows.Values)
-            {
-                Application.Current.CloseWindow(win);
-            }
-            _openWindows.Clear();
             #endif
         }
 
@@ -188,12 +188,12 @@ namespace ProjectManagerProto.ViewModels
 
         public void RefreshProjects()
         {
-            // Get all the TaskLists stored in SavedProjects
+            // Get all the saved TaskLists
             var projects = SavedProjects
                 .GetTaskLists()
                 .Select(taskList => taskList as Project ?? throw new InvalidOperationException("TaskCollection contains a non-Project TaskList."));
 
-            // This switch returns a filtered version of projects, based on what ProjectFilterMode is
+            // This switch returns a filtered version of Projects, based on what ProjectFilterMode was set
             projects = _filterMode switch
             {
                 ProjectFilterMode.Complete => projects.Where(project => project.PercentComplete >= 100),
@@ -201,7 +201,7 @@ namespace ProjectManagerProto.ViewModels
                 _ => projects
             };
 
-            // This switch returns a different ordering of projects, based on what ProjectSortMode is
+            // This switch returns a different ordering of Projects, based on what ProjectSortMode was set
             projects = _sortMode switch
             {
                 ProjectSortMode.TaskCount => projects.OrderByDescending(project => project.TotalTasksCount),
@@ -224,18 +224,17 @@ namespace ProjectManagerProto.ViewModels
 
         public sealed class DisplayedProjectItem
         {
+            public DisplayedProjectItem(Project project)
+            {
+                Project = project;
+            }
+
             public Project Project { get; }
 
             public string Name => Project.GetName();
             public int TotalTasksCount => Project.TotalTasksCount;
             public int IncompleteTasksCount => Project.IncompleteTasksCount;
             public float PercentComplete => Project.PercentComplete;
-
-            public DisplayedProjectItem(Project project)
-            {
-                Project = project;
-            }
         }
-
     }
 }

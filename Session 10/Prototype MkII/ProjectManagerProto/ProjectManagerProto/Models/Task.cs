@@ -8,6 +8,7 @@
 
     public class Task
     {
+        public string Description { get; set; }
         public string Notes { get; set; }
         public DateTime DateCreated { get; set; }
         public Priority TaskPriority { get; set; }
@@ -18,14 +19,14 @@
 
         public Task(string description)
         {
-            _description = description;
+            Description = description;
             DateCreated = DateTime.Now;
             TaskPriority = new Priority(1);
         }
 
-        public string Description => _description;
-        public string GetDescription() => _description;
-        public void SetDescription(string desc) => _description = desc;
+        //public string Description => _description;
+        //public string GetDescription() => _description;
+        //public void SetDescription(string desc) => _description = desc;
         public void ToggleCompletion() => IsComplete = !IsComplete;
         public override string ToString() => _description;
     }

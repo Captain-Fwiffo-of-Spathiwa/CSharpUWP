@@ -8,7 +8,27 @@ namespace ProjectManagerProto.Views
         public TaskListPage(Project project)
         {
             InitializeComponent();
-            BindingContext = new TaskListViewModel(project);
+            BindingContext = new TaskListViewModel(project, this);
+        }
+
+        void OnAddButtonPressed(object sender, EventArgs e)
+        {
+            ((Button)sender).BackgroundColor = Colors.DarkSlateBlue;
+        }
+
+        void OnAddButtonReleased(object sender, EventArgs e)
+        {
+            ((Button)sender).BackgroundColor = Colors.SteelBlue;
+        }
+
+        void OnDeleteButtonPressed(object sender, EventArgs e)
+        {
+            ((Button)sender).BackgroundColor = Colors.DarkRed;
+        }
+
+        void OnDeleteButtonReleased(object sender, EventArgs e)
+        {
+            ((Button)sender).BackgroundColor = Colors.Firebrick;
         }
     }
 }

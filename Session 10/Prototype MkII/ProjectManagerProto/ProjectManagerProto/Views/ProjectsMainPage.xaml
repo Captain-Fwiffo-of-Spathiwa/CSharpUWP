@@ -17,7 +17,7 @@
                 <Button 
                     Text="Add Project"
                     BackgroundColor="LimeGreen"
-                    TextColor="Black"
+                    TextColor="White"
                     HeightRequest="32"
                     Margin="0,8,0,0"
                     Pressed="OnAddButtonPressed"
@@ -43,8 +43,8 @@
                 <!-- Delete Completed Projects Button -->
                 <Button
                     Text="Delete Completed Projects"
-                    BackgroundColor="Maroon"
-                    TextColor="White"
+                    BackgroundColor="Firebrick"
+                    TextColor="Black"
                     HeightRequest="32"
                     Margin="0,16,0,0"
                     Pressed="OnDeleteButtonPressed"
@@ -63,7 +63,7 @@
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer
                                     NumberOfTapsRequired="2"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProjectsViewModel}}, Path=ProjectDoubleTappedCommand}"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProjectsViewModel}}, Path=ProjectDoubleClickedCommand}"
                                     CommandParameter="{Binding .}" />
                             </Border.GestureRecognizers>
                             <Grid RowDefinitions="Auto,Auto,Auto,Auto">

@@ -30,12 +30,12 @@
 
         void OnDeleteButtonPressed(object sender, EventArgs e)
         {
-            ((Button)sender).BackgroundColor = Colors.Maroon;
+            ((Button)sender).BackgroundColor = Colors.DarkRed;
         }
 
         void OnDeleteButtonReleased(object sender, EventArgs e)
         {
-            ((Button)sender).BackgroundColor = Colors.DarkRed;
+            ((Button)sender).BackgroundColor = Colors.Firebrick;
         }
     }
 }
