@@ -1,6 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using MauiApp1.Models;
+using Microsoft.UI.Xaml;
+using Window = Microsoft.Maui.Controls.Window;
+
+
 
 #if WINDOWS
 using Microsoft.UI.Xaml.Controls;
@@ -20,11 +24,14 @@ namespace MauiApp1.ViewModels
         public DateTime? DueDate { get; set; }
     }
 
+
+
     public class MainViewModel
     {
         public ObservableCollection<DataItem> Items { get; set; }
         public ICommand ItemDoubleClickedCommand { get; set; }
-
+        private readonly Dictionary<int, Window> openWindows = new(); // Tracks open windows by item ID
+        
         public MainViewModel()
         {
             Items = new ObservableCollection<DataItem>
@@ -37,35 +44,65 @@ namespace MauiApp1.ViewModels
             ItemDoubleClickedCommand = new Command<DataItem>(OnItemDoubleClicked);
         }
 
-        //private async void OnItemDoubleClicked(DataItem selectedItem)
-        //{
-        //    if (selectedItem == null) return;
+        public void RegisterMainWindow(Window mainWindow)
+        {
+            mainWindow.Destroying += (s, e) =>
+            {
+                foreach (var win in openWindows.Values.ToList())
+                {
+                    Microsoft.Maui.Controls.Application.Current.CloseWindow(win);
+                }
+                openWindows.Clear();
+            };
+        }
 
-        //    #if WINDOWS
-        //    var window = new Window(new ContentPage 
-        //    { 
-        //        Title = selectedItem.Title,
-        //        Content = new Label 
-        //        { 
-        //            Text = selectedItem.Description, 
-        //            HorizontalOptions = LayoutOptions.Center, 
-        //            VerticalOptions = LayoutOptions.Center 
-        //        } 
-        //    });
+        private async void OnItemDoubleClicked(DataItem selectedItem)
+        {
+            if (selectedItem == null) return;
 
-        //    Application.Current.OpenWindow(window);
-        //    await Task.Delay(250);
+#if WINDOWS
 
-        //    var mauiWinUIWindow = window.Handler?.PlatformView as Microsoft.UI.Xaml.Window;
-        //    mauiWinUIWindow?.Activate();
+            Microsoft.UI.Xaml.Window mauiWinUIWindow;
 
-        //    var windowHandle = WinRT.Interop.WindowNative.GetWindowHandle(mauiWinUIWindow);
-        //    var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(windowHandle);
-        //    var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+            // Check if a window for this item is already open
+            if (openWindows.TryGetValue(selectedItem.Id, out var existingWindow))
+            {
+                mauiWinUIWindow = existingWindow.Handler?.PlatformView as Microsoft.UI.Xaml.Window;
+                mauiWinUIWindow?.Activate();
+                return;
+            }
 
-        //    appWindow.MoveAndResize(new Windows.Graphics.RectInt32(840, 20, 800, 600));
-        //    #endif
-        //}
+            var window = new Window(new ContentPage
+            {
+                Title = selectedItem.Title,
+                Content = new Microsoft.Maui.Controls.Label
+                {
+                    Text = selectedItem.Description,
+                    HorizontalOptions = LayoutOptions.Center,
+                    VerticalOptions = LayoutOptions.Center
+                }
+            });
+
+            openWindows[selectedItem.Id] = window; // Store the new window
+
+            // Remove from dictionary when window is destroyed
+            window.Destroying += (s, e) => openWindows.Remove(selectedItem.Id);
+
+            Microsoft.Maui.Controls.Application.Current.OpenWindow(window);
+            await Task.Delay(250);
+
+            mauiWinUIWindow = window.Handler?.PlatformView as Microsoft.UI.Xaml.Window;
+            mauiWinUIWindow?.Activate();
+
+            var windowHandle = WinRT.Interop.WindowNative.GetWindowHandle(mauiWinUIWindow);
+            var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(windowHandle);
+            var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+
+            appWindow.MoveAndResize(new Windows.Graphics.RectInt32(840, 20, 800, 600));
+            #endif
+        }
+
+
 #if WINDOWS
         //private async void OnItemDoubleClicked(DataItem selectedItem)
         //{
@@ -86,44 +123,11 @@ namespace MauiApp1.ViewModels
         //    }
         //}
 
-
-        private async void OnItemDoubleClicked(DataItem selectedItem)
-        {
-            ShowEditDialogAsync("hey", "Ho", 2, DateTime.Now, DateTime.Now);
-        }
-
-        //private async void ShowEditDialog()
+        // EDITABLE MODAL
+        //private async void OnItemDoubleClicked(DataItem selectedItem)
         //{
-        //    var windows = Microsoft.Maui.Controls.Application.Current.Windows;
-        //    var mauiWindow = windows.Count > 0 ? windows[0] : null;
-        //    if (mauiWindow == null) return;
-
-        //    var nativeWindow = mauiWindow.Handler?.PlatformView as Microsoft.UI.Xaml.Window;
-        //    if (nativeWindow == null) return;
-
-        //    // Create editable fields
-        //    var stackPanel = new StackPanel();
-        //    var textBox = new TextBox { PlaceholderText = "Enter something..." };
-        //    stackPanel.Children.Add(textBox);
-
-        //    var dialog = new ContentDialog
-        //    {
-        //        Title = "Edit Data",
-        //        Content = stackPanel,
-        //        PrimaryButtonText = "OK",
-        //        CloseButtonText = "Cancel",
-        //        XamlRoot = nativeWindow.Content.XamlRoot
-        //    };
-
-        //    var result = await dialog.ShowAsync();
-
-        //    if (result == ContentDialogResult.Primary)
-        //    {
-        //        string userInput = textBox.Text;
-        //        // Use userInput as needed
-        //    }
+        //    ShowEditDialogAsync("hey", "Ho", 2, DateTime.Now, DateTime.Now);
         //}
-
 
         public async Task<EditDialogResult?> ShowEditDialogAsync(
             string description, string notes, int priority, DateTime dueDate, DateTime creationDate)

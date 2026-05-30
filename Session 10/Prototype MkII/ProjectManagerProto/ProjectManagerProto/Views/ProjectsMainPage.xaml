@@ -1,0 +1,34 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ProjectManagerProto.ViewModels"
+             x:Class="ProjectManagerProto.Views.ProjectsMainPage"
+             Title="Projects Home">
+    <ContentPage.BindingContext>
+        <vm:ProjectsViewModel />
+    </ContentPage.BindingContext>
+    <Grid ColumnDefinitions="240, *">
+        <!-- Settings Section -->
+        <StackLayout Grid.Column="0" BackgroundColor="#EEE" Padding="16">
+            <Label Text="Settings" FontAttributes="Bold" FontSize="18" />
+            <!-- Settings controls go here -->
+        </StackLayout>
+        <!-- Projects List Section -->
+        <StackLayout Grid.Column="1" Padding="16">
+            <Label Text="Projects" FontAttributes="Bold" FontSize="18" Margin="0,0,0,8"/>
+            <CollectionView ItemsSource="{Binding Projects}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Margin="0,0,0,8" Padding="12" BorderColor="#CCC">
+                            <StackLayout>
+                                <Label Text="{Binding Name}" FontSize="16" FontAttributes="Bold"/>
+                                <Label Text="{Binding TotalTasksCount, StringFormat='Tasks: {0}'}"/>
+                                <Label Text="{Binding PercentComplete, StringFormat='Complete: {0:F0}%'}"/>
+                                <Label Text="{Binding DateCreated, StringFormat='Created: {0:yyyy-MM-dd}'}"/>
+                            </StackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </StackLayout>
+    </Grid>
+</ContentPage>
