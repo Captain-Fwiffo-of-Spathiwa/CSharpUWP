@@ -1,7 +1,4 @@
 ﻿using ProjectManagerProto.Helpers;
-using System;
-using System.IO;
-
 
 
 namespace ProjectManagerProto.Models
@@ -50,37 +47,33 @@ namespace ProjectManagerProto.Models
     /// </summary>
     public class Task
     {
-        protected string            Description;
+        public string               Description { get; set; }
 
         /// <summary>
         ///  Extra notes for this Task. Optional.
         /// </summary>
-        public string               Notes               = "";
+        public string               Notes { get; set; } = "";
         
         /// <summary>
         /// The date the Task was created.
         /// </summary>
-        public DateTime             DateCreated;
+        public DateTime             DateCreated { get; set; }
 
         /// <summary>
         /// This Task's priority. Lower value means higher priority.
         /// A Task's priority value defaults to 0 (highest priority).
         /// </summary>
-        public Priority             TaskPriority        = new();
+        public Priority             TaskPriority = new();
 
         /// <summary>
         /// The date this Task is due. Optional.
         /// </summary>
-        public DateTime?            DueDate             = null;
+        public DateTime?            DueDate { get; set; } = null;
 
         /// <summary>
         /// Return whether the Task is complete.
         /// </summary>
-        public virtual bool IsComplete
-        {
-            get;
-            set;
-        }
+        public virtual bool IsComplete { get; set; }
 
         /// <summary>
         /// Return whether the Task is overdue.

@@ -267,5 +267,8 @@ public class TaskCollection
 
         return sortedTasks;
     }
-}
+
+    public void DeleteAllCompletedTaskLists() => TaskLists.RemoveAll(l => l.IncompleteTasksCount == 0);
+
+    }
 }

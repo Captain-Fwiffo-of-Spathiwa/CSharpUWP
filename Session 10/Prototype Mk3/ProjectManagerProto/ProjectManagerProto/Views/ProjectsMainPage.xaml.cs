@@ -1,6 +1,4 @@
-﻿using Microsoft.Maui.Controls;
-
-namespace ProjectManagerProto.Views
+﻿namespace ProjectManagerProto.Views
 {
     public partial class ProjectsMainPage : ContentPage
     {
@@ -12,14 +10,32 @@ namespace ProjectManagerProto.Views
 
         private void OnLoaded(object? sender, EventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine("message\n\n\n\n\n\n\n");
             Window.Destroying += OnMainWindowDestroying;
-
         }
 
         private void OnMainWindowDestroying(object? sender, EventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine("\n\n\n\n\n\n\n\nDest");
+            ViewModels.ProjectsViewModel.CloseAllProjectWindows();
+        }
+
+        void OnAddButtonPressed(object sender, EventArgs e)
+        {
+            ((Button)sender).BackgroundColor = Colors.Green;
+        }
+
+        void OnAddButtonReleased(object sender, EventArgs e)
+        {
+            ((Button)sender).BackgroundColor = Colors.LimeGreen;
+        }
+
+        void OnDeleteButtonPressed(object sender, EventArgs e)
+        {
+            ((Button)sender).BackgroundColor = Colors.Maroon;
+        }
+
+        void OnDeleteButtonReleased(object sender, EventArgs e)
+        {
+            ((Button)sender).BackgroundColor = Colors.DarkRed;
         }
     }
 }

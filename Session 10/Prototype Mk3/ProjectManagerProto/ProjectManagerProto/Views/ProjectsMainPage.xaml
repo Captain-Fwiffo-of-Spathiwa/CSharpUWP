@@ -6,19 +6,66 @@
     <ContentPage.BindingContext>
         <vm:ProjectsViewModel />
     </ContentPage.BindingContext>
+
     <Grid ColumnDefinitions="240, *">
         <!-- Settings Section -->
-        <Grid Grid.Column="0" BackgroundColor="#EEE" Padding="16">
-            <Label Text="Settings" FontAttributes="Bold" FontSize="18" />
-            <!-- Settings controls go here -->
-        </Grid>
+        <ScrollView Grid.Column="0" BackgroundColor="#EEE" Padding="16" Orientation="Vertical">
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Settings" FontAttributes="Bold" FontSize="18" />
+
+                <!-- Add Project Button -->
+                <Button 
+                    Text="Add Project"
+                    BackgroundColor="LimeGreen"
+                    TextColor="Black"
+                    HeightRequest="32"
+                    Margin="0,8,0,0"
+                    Pressed="OnAddButtonPressed"
+                    Released="OnAddButtonReleased"
+                    Command="{Binding AddProjectCommand}" />
+
+                <!-- Order Projects Radio Buttons -->
+                <Label Text="Order by:" FontAttributes="Bold" Margin="0,12,0,0"/>
+                <VerticalStackLayout Spacing="2">
+                    <RadioButton Content="Name" GroupName="ProjectSort" IsChecked="{Binding SortByName, Mode=TwoWay}" />
+                    <RadioButton Content="Task count" GroupName="ProjectSort" IsChecked="{Binding SortByTaskCount, Mode=TwoWay}" />
+                    <RadioButton Content="Completion percentage" GroupName="ProjectSort" IsChecked="{Binding SortByCompletionPercentage, Mode=TwoWay}" />
+                </VerticalStackLayout>
+
+                <!-- Filter Projects Radio Buttons -->
+                <Label Text="Show:" FontAttributes="Bold" Margin="0,12,0,0"/>
+                <VerticalStackLayout Spacing="2">
+                    <RadioButton Content="All" GroupName="ProjectFilter" IsChecked="{Binding FilterAll, Mode=TwoWay}" />
+                    <RadioButton Content="Complete" GroupName="ProjectFilter" IsChecked="{Binding FilterComplete, Mode=TwoWay}" />
+                    <RadioButton Content="Incomplete" GroupName="ProjectFilter" IsChecked="{Binding FilterIncomplete, Mode=TwoWay}" />
+                </VerticalStackLayout>
+
+                <!-- Delete Completed Projects Button -->
+                <Button
+                    Text="Delete Completed Projects"
+                    BackgroundColor="Maroon"
+                    TextColor="White"
+                    HeightRequest="32"
+                    Margin="0,16,0,0"
+                    Pressed="OnDeleteButtonPressed"
+                    Released="OnDeleteButtonReleased"
+                    Command="{Binding DeleteCompletedProjectsCommand}" />
+            </VerticalStackLayout>
+        </ScrollView>
+        
         <!-- Projects List Section -->
         <Grid Grid.Column="1" Padding="16" RowDefinitions="Auto, *">
             <Label Text="Projects" FontAttributes="Bold" FontSize="18" Margin="0,0,0,8"/>
-            <CollectionView Grid.Row="1" ItemsSource="{Binding Projects}">
+            <CollectionView Grid.Row="1" ItemsSource="{Binding DisplayedProjects}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Border Stroke="#CCC" StrokeThickness="1" Margin="0,0,0,8" Padding="12">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    NumberOfTapsRequired="2"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProjectsViewModel}}, Path=ProjectDoubleTappedCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
                             <Grid RowDefinitions="Auto,Auto,Auto,Auto">
                                 <Label Text="{Binding Name}" FontSize="16" FontAttributes="Bold"/>
                                 <Label Grid.Row="1" Text="{Binding TotalTasksCount, StringFormat='Tasks: {0}'}"/>
