@@ -41,6 +41,21 @@ namespace ProjectManagerProto.ViewModels
                 Title = "Project Details"
             };
             Application.Current.OpenWindow(window);
+
+            var mauiWinUIWindow = window.Handler?.PlatformView as Microsoft.UI.Xaml.Window;
+            if (mauiWinUIWindow != null)
+            {
+                var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(
+                    Microsoft.UI.Win32Interop.GetWindowIdFromWindow(
+                        WinRT.Interop.WindowNative.GetWindowHandle(mauiWinUIWindow)
+                    )
+                );
+                if (appWindow != null)
+                {
+                    appWindow.MoveAndResize(new Windows.Graphics.RectInt32(100, 700, 800, 600));
+                }
+            }
+
 #endif
         }
     }
