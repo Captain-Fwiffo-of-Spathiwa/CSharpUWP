@@ -1,5 +1,6 @@
 ﻿using Microsoft.Maui;
 using Microsoft.Maui.Controls;
+using Microsoft.UI.Xaml.Controls;
 using ProjectManagerProto.Models;
 using ProjectManagerProto.Views;
 using System.Collections.ObjectModel;
@@ -25,12 +26,12 @@ namespace ProjectManagerProto.ViewModels
         private TaskFilterMode _filterMode = TaskFilterMode.All;
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private readonly Page Page;
+        private readonly Microsoft.Maui.Controls.Page Page;
 
 
         public TaskListViewModel() {}
 
-        public TaskListViewModel(Project project, Page page)
+        public TaskListViewModel(Project project, Microsoft.Maui.Controls.Page page)
         {
             Page = page;
 
@@ -42,59 +43,51 @@ namespace ProjectManagerProto.ViewModels
             DeleteCompletedTasksCommand = new Command(async () => await DeleteCompletedTasks());
         }
 
-        private async void OnTaskDoubleClicked(DisplayedTaskItem taskItem)
+        private async void OnTaskDoubleClicked(DisplayedTaskItem item)
         {
-            var vm = new TaskDialogViewModel(taskItem.Task, Page.Navigation);
-            await Page.Navigation.PushModalAsync(new TaskDialogPage(vm));
-            if (vm.IsOk)
+#if WINDOWS
+            // Get the current MAUI window
+            var mauiWindow = Application.Current.Windows.FirstOrDefault(w => w.Page is TaskListPage);
+            if (mauiWindow == null) return;
+
+            var nativeWindow = mauiWindow.Handler.PlatformView as Microsoft.UI.Xaml.Window;
+            if (nativeWindow == null) return;
+
+            var dialog = new ContentDialog
             {
-                // Task was edited, refresh your list
+                Title = "Edit Task",
+                XamlRoot = nativeWindow.Content.XamlRoot,
+                PrimaryButtonText = "OK",
+                CloseButtonText = "Cancel",
+                DefaultButton = ContentDialogButton.Primary,
+                Content = new StackPanel
+                {
+                    Children =
+            {
+                new TextBox { Header = "Description", Text = item.Description },
+                //new DatePicker { Header = "Due Date", SelectedDate = item.DueDate },
+                //new NumberBox { Header = "Priority", Value = item.Priority },
+                //new TextBox { Header = "Notes", Text = item.Notes, AcceptsReturn = true, Height = 60 },
+                //new CheckBox { Content = "Completed", IsChecked = item.IsComplete },
+                new TextBlock { Text = $"Date Created: {item.DateCreated:yyyy-MM-dd HH:mm}" }
+            }
+                }
+            };
+
+            var result = await dialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
+            {
+                var panel = (StackPanel)dialog.Content;
+                //item.Description = ((TextBox)panel.Children[0]).Text;
+                //item.DueDate = ((DatePicker)panel.Children[1]).SelectedDate ?? item.DueDate;
+                //item.Priority = (int)((NumberBox)panel.Children[2]).Value;
+                //item.Notes = ((TextBox)panel.Children[3]).Text;
+                //item.IsComplete = ((CheckBox)panel.Children[4]).IsChecked ?? false;
+                // Save changes as needed
                 RefreshTasks();
-            }            //Microsoft.UI.Xaml.Window mauiWinUIWindow;
-
-            //if (_openWindows.TryGetValue(projectItem.Project, out var existingWindow))
-            //{
-            //    mauiWinUIWindow = existingWindow.Handler?.PlatformView as Microsoft.UI.Xaml.Window;
-            //    if (mauiWinUIWindow != null)
-            //    {
-            //        await System.Threading.Tasks.Task.Delay(250);
-            //        mauiWinUIWindow.Activate();
-            //    }
-            //    return;
-            //}
-
-            //var window = new Microsoft.Maui.Controls.Window
-            //{
-            //    Page = new ProjectManagerProto.Views.TaskListPage(projectItem.Project),
-            //    Title = "Project Details"
-            //};
-
-            //_openWindows[projectItem.Project] = window;
-
-            //window.Destroying += (s, e) =>
-            //{
-            //    _openWindows.Remove(projectItem.Project);
-            //};
-
-            //Application.Current.OpenWindow(window);
-
-            //mauiWinUIWindow = window.Handler?.PlatformView as Microsoft.UI.Xaml.Window;
-            //if (mauiWinUIWindow != null)
-            //{
-            //    var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(
-            //        Microsoft.UI.Win32Interop.GetWindowIdFromWindow(
-            //            WinRT.Interop.WindowNative.GetWindowHandle(mauiWinUIWindow)
-            //        )
-            //    );
-            //    if (appWindow != null)
-            //    {
-            //        appWindow.MoveAndResize(new Windows.Graphics.RectInt32(100, 700, 800, 600));
-            //    }
-
-            //    await System.Threading.Tasks.Task.Delay(250);
-            //    mauiWinUIWindow?.Activate();
-            //}
-            //#endif
+            }
+#endif
         }
 
         private async System.Threading.Tasks.Task AddTaskAsync()
