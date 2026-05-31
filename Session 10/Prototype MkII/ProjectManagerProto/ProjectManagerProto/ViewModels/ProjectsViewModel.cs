@@ -5,27 +5,48 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Task = System.Threading.Tasks.Task;
 
+
+
 namespace ProjectManagerProto.ViewModels
 {
+    public enum ProjectSortMode
+    {
+        Name,
+        TaskCount,
+        CompletionPercentage
+    }
+
+    public enum ProjectFilterMode
+    {
+        All,
+        Complete,
+        Incomplete
+    }
+
     public class ProjectsViewModel : INotifyPropertyChanged
     {
+        // Sorting and filtering is done by maintaining a saved list and a presentation list
         private readonly TaskCollection SavedProjects = new();
         public ObservableCollection<DisplayedProjectItem> DisplayedProjects { get; } = new();
-
-        public ICommand ProjectDoubleClickedCommand { get; }
-        public ICommand AddProjectCommand { get; }
-        public ICommand DeleteCompletedProjectsCommand { get; }
-        public ICommand DeleteProjectCommand { get; }
 
         private ProjectSortMode _sortMode = ProjectSortMode.Name;
         private ProjectFilterMode _filterMode = ProjectFilterMode.All;
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        // Buttons and double-clicks
+        public ICommand ProjectDoubleClickedCommand { get; }
+        public ICommand AddProjectCommand { get; }
+        public ICommand DeleteCompletedProjectsCommand { get; }
+        public ICommand DeleteProjectCommand { get; }
+
+        // Window counts for window positioning
         int numTaskListWindows = 0;
 
         #if WINDOWS
         private static readonly Dictionary<Project, Microsoft.Maui.Controls.Window> _openWindows = new();
         #endif
+
+        // A bit dirty by we set a static with this instance to easily call this ViewModel
         public static ProjectsViewModel? Instance { get; private set; }
 
         public ProjectsViewModel()
@@ -105,7 +126,7 @@ namespace ProjectManagerProto.ViewModels
                 );
                 if (appWindow != null)
                 {
-                    // Have our TaskList windows cascase all fancy
+                    // Have our TaskList windows cascade all fancy
                     int x = 40 * numTaskListWindows;
                     int y = 40 * numTaskListWindows;
                     const int xInit = 840;

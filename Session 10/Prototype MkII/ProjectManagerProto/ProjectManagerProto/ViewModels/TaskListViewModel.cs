@@ -4,32 +4,49 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using static ProjectManagerProto.ViewModels.ProjectsViewModel;
 using CheckBox = Microsoft.UI.Xaml.Controls.CheckBox;
 using DatePicker = Microsoft.UI.Xaml.Controls.DatePicker;
 using ScrollBarVisibility = Microsoft.UI.Xaml.Controls.ScrollBarVisibility;
 using Task = ProjectManagerProto.Models.Task;
 using TimePicker = Microsoft.UI.Xaml.Controls.TimePicker;
 
+
+
 namespace ProjectManagerProto.ViewModels
 {
+    public enum TaskSortMode
+    {
+        Name,
+        DueDate,
+        Priority
+    }
+
+    public enum TaskFilterMode
+    {
+        All,
+        Complete,
+        Incomplete,
+        Overdue
+    }
+
     public class TaskListViewModel
     {
+        // Sorting and filtering is done by maintaining a saved list and a presentation list
         private readonly Project SavedTaskList;
         public ObservableCollection<DisplayedTaskItem> DisplayedTasks { get; } = new();
-
-        public ICommand TaskDoubleClickedCommand { get; }
-        public ICommand AddTaskCommand { get; }
-        public ICommand DeleteCompletedTasksCommand { get; }
-        public ICommand DeleteTaskCommand { get; }
-
 
         private TaskSortMode _sortMode = TaskSortMode.Name;
         private TaskFilterMode _filterMode = TaskFilterMode.All;
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private readonly Microsoft.Maui.Controls.Page Page;
+        // Buttons and double-clicks
+        public ICommand TaskDoubleClickedCommand { get; }
+        public ICommand AddTaskCommand { get; }
+        public ICommand DeleteCompletedTasksCommand { get; }
+        public ICommand DeleteTaskCommand { get; }
 
+        // Hold a reference to this Page for window management
+        private readonly Microsoft.Maui.Controls.Page Page;
 
         public TaskListViewModel() {}
 
@@ -47,7 +64,7 @@ namespace ProjectManagerProto.ViewModels
 
         private async void OnTaskDoubleClicked(DisplayedTaskItem taskItem)
         {
-#if WINDOWS
+            #if WINDOWS
             // Use the Page passed to the ctor to find this TaskList's window,
             // so that multiple windows can have their own modal dialogs.
             var nativeWindow = Page.Handler.PlatformView as Microsoft.UI.Xaml.FrameworkElement;

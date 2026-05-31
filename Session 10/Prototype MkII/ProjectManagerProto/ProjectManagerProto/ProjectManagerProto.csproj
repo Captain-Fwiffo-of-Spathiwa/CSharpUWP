@@ -70,15 +70,6 @@
 	  <Compile Update="Views\ProjectsMainPage.xaml.cs">
 	    <DependentUpon>ProjectsMainPage.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\TaskDialogPage.xaml.cs">
-	    <DependentUpon>TaskDialogPage.xaml</DependentUpon>
-	  </Compile>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <MauiXaml Update="Views\TaskDialogPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
 	</ItemGroup>
 
 </Project>

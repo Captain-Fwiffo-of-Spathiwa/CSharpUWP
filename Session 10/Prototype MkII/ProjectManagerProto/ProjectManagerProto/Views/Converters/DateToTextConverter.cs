@@ -4,6 +4,9 @@ namespace ProjectManagerProto.Views.Converters
 {
     public class DateToTextConverter : IMultiValueConverter
     {
+        /// <summary>
+        /// Return a due date, no due date, or an overdue warning.
+        /// </summary>
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             DateTime? dueDate = values[0] as DateTime?;
