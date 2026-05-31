@@ -24,12 +24,6 @@ namespace ProjectManagerProto.Models
 
         public override void AddTask(Task task)
         {
-            if (task is Habit || task is RepeatingTask)
-            {
-                Debug.WriteLine("Error - Projects can not contain RepeatingTasks or Habits!");
-                return;
-            }
-
             base.AddTask(task);
             Debug.WriteLine($"Added {task.GetDescription()} task to project.");
         }

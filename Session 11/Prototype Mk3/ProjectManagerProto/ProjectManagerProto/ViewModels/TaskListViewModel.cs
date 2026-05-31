@@ -151,7 +151,8 @@ namespace ProjectManagerProto.ViewModels
 
             if (!string.IsNullOrWhiteSpace(result))
             {
-                SavedTaskList.AddTask(new("Make biscuits for doggers"));
+                Task newTask = Helpers.StringParse.ParseNaturalTaskCreation(result);
+                SavedTaskList.AddTask(newTask);
                 RefreshTasks();
                 ProjectsViewModel.RefreshProjectsStatic();
             }

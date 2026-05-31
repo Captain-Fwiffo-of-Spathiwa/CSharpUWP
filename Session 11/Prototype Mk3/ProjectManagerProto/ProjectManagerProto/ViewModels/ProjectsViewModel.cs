@@ -53,14 +53,6 @@ namespace ProjectManagerProto.ViewModels
         {
             Instance = this;
 
-            var sample = SampleData.Create();
-            foreach (var list in sample.GetTaskLists())
-            {
-                if (list is Project project)
-                {
-                    SavedProjects.AddTaskList(project);
-                }
-            }
             RefreshProjects();
 
             ProjectDoubleClickedCommand = new Command<DisplayedProjectItem>(OnProjectDoubleClicked);

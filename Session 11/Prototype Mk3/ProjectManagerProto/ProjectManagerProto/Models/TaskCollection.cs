@@ -213,20 +213,6 @@ public class TaskCollection
         return tasksToSort;
     }
 
-    public List<Task> GetHabits()
-    {
-        // A more performant approach would have been to run this LINQ Where()
-        // in each TaskList, avoiding the copy of the full list of all Tasks.
-        List<Task> tasksToSort = GetAllTasks();
-        return tasksToSort.Where(task => task is Habit).ToList();
-    }
-
-    public List<Task> GetRepeatingTasks()
-    {
-        List<Task> tasksToSort = GetAllTasks();
-        return tasksToSort.Where(task => task is RepeatingTask).ToList();
-    }
-
     public List<Task> GetDueTasks()
     {
         List<Task> tasksToSort = GetAllTasks();

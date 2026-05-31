@@ -117,14 +117,6 @@ namespace ProjectManagerProto.Models
                         Tasks.Add(new Task("temp Task"));
                         break;
 
-                    case 1:
-                        Tasks.Add(new RepeatingTask("temp Repeating Task", DateTime.Now, Frequency.Daily));
-                        break;
-
-                    case 2:
-                        Tasks.Add(new Habit("temp Habit", DateTime.Now, Frequency.Daily, 0));
-                        break;
-
                     default:
                         break;
                 }
