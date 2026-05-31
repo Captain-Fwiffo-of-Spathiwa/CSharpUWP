@@ -9,6 +9,9 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using static ProjectManagerProto.ViewModels.ProjectsViewModel;
+using CheckBox = Microsoft.UI.Xaml.Controls.CheckBox;
+using DatePicker = Microsoft.UI.Xaml.Controls.DatePicker;
+using ScrollBarVisibility = Microsoft.UI.Xaml.Controls.ScrollBarVisibility;
 using Task = ProjectManagerProto.Models.Task;
 
 namespace ProjectManagerProto.ViewModels
@@ -43,15 +46,29 @@ namespace ProjectManagerProto.ViewModels
             DeleteCompletedTasksCommand = new Command(async () => await DeleteCompletedTasks());
         }
 
-        private async void OnTaskDoubleClicked(DisplayedTaskItem item)
+        private async void OnTaskDoubleClicked(DisplayedTaskItem taskItem)
         {
-#if WINDOWS
+            #if WINDOWS
             // Get the current MAUI window
             var mauiWindow = Application.Current.Windows.FirstOrDefault(w => w.Page is TaskListPage);
             if (mauiWindow == null) return;
 
             var nativeWindow = mauiWindow.Handler.PlatformView as Microsoft.UI.Xaml.Window;
             if (nativeWindow == null) return;
+
+            var description = new TextBox { Header = "Description", Text = taskItem.Description };
+            var dueDatePicker = new DatePicker { Header = "Due Date", SelectedDate = taskItem.DueDate };
+            var priorityBox = new NumberBox
+            {
+                Header = "Priority",
+                Value = taskItem.PriorityValue,
+                Minimum = 1,
+                Maximum = 100,
+                SpinButtonPlacementMode = NumberBoxSpinButtonPlacementMode.Inline
+            };
+            var notes = new TextBox { Header = "Notes", Text = taskItem.Notes, AcceptsReturn = true, Height = 60 };
+            var completeBox = new CheckBox { Content = "Completed", IsChecked = taskItem.IsComplete };
+            var dateCreated = new TextBlock { Text = $"Date Created: {taskItem.DateCreated:yyyy-MM-dd HH:mm}" };
 
             var dialog = new ContentDialog
             {
@@ -60,17 +77,22 @@ namespace ProjectManagerProto.ViewModels
                 PrimaryButtonText = "OK",
                 CloseButtonText = "Cancel",
                 DefaultButton = ContentDialogButton.Primary,
-                Content = new StackPanel
+                Content = new ScrollViewer
                 {
-                    Children =
-            {
-                new TextBox { Header = "Description", Text = item.Description },
-                //new DatePicker { Header = "Due Date", SelectedDate = item.DueDate },
-                //new NumberBox { Header = "Priority", Value = item.Priority },
-                //new TextBox { Header = "Notes", Text = item.Notes, AcceptsReturn = true, Height = 60 },
-                //new CheckBox { Content = "Completed", IsChecked = item.IsComplete },
-                new TextBlock { Text = $"Date Created: {item.DateCreated:yyyy-MM-dd HH:mm}" }
-            }
+                    VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                    Content = new StackPanel
+                    {
+                        Spacing = 16,
+                        Children =
+                        {
+                            description,
+                            dueDatePicker,
+                            priorityBox,
+                            notes,
+                            completeBox,
+                            dateCreated
+                        }
+                    }
                 }
             };
 
@@ -78,16 +100,15 @@ namespace ProjectManagerProto.ViewModels
 
             if (result == ContentDialogResult.Primary)
             {
-                var panel = (StackPanel)dialog.Content;
-                //item.Description = ((TextBox)panel.Children[0]).Text;
-                //item.DueDate = ((DatePicker)panel.Children[1]).SelectedDate ?? item.DueDate;
-                //item.Priority = (int)((NumberBox)panel.Children[2]).Value;
-                //item.Notes = ((TextBox)panel.Children[3]).Text;
-                //item.IsComplete = ((CheckBox)panel.Children[4]).IsChecked ?? false;
-                // Save changes as needed
+                taskItem.Task.Description = description.Text;
+                taskItem.Task.DueDate = dueDatePicker.SelectedDate?.DateTime ?? taskItem.Task.DueDate;
+                taskItem.Task.TaskPriority = new Priority((int)priorityBox.Value);
+                taskItem.Task.Notes = notes.Text;
+                taskItem.Task.IsComplete = completeBox.IsChecked ?? false;
+                
                 RefreshTasks();
             }
-#endif
+            #endif
         }
 
         private async System.Threading.Tasks.Task AddTaskAsync()
@@ -231,11 +252,11 @@ namespace ProjectManagerProto.ViewModels
             public Task Task { get; }
 
             public string Description => Task.Description;
-            public DateTime DateCreated => Task.DateCreated;
             public DateTime? DueDate => Task.DueDate;
             public int PriorityValue => Task.TaskPriority.Value;
+            public string Notes => Task.Notes;
             public bool IsComplete => Task.IsComplete;
-            public string Status => Task.IsComplete ? "Complete" : Task.Overdue ? "Overdue" : "Incomplete";
+            public DateTime DateCreated => Task.DateCreated;
         }
     }
 }
