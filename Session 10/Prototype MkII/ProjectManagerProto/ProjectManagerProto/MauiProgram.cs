@@ -29,7 +29,7 @@ namespace ProjectManagerProto
                             const int x = 20;
                             const int y = 20;
                             const int width = 800;
-                            const int height = 600;
+                            const int height = 1000;
 
                             var mauiWinUIWindow = (Microsoft.UI.Xaml.Window)window;
                             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(mauiWinUIWindow);

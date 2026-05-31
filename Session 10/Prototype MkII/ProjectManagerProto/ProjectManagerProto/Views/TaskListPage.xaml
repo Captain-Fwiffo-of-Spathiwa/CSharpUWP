@@ -1,4 +1,4 @@
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:ProjectManagerProto.ViewModels"
              xmlns:converters="clr-namespace:ProjectManagerProto.Views.Converters"
@@ -83,13 +83,28 @@
                                     FontAttributes="{Binding IsComplete, Converter={StaticResource BoolToItalicsConverter}}"
                                     TextDecorations="{Binding IsComplete, Converter={StaticResource BoolToStrikethroughConverter}}" />
                                 <Label Grid.Row="1" Text="{Binding PriorityValue, StringFormat='Priority: {0}'}"/>
-                                <Label
-                                    Grid.Row="2"
-                                    Text="{Binding DueDate, Converter={StaticResource DateToTextConverter}}"/>
-                                    <!-- Text="{Binding DueDate, StringFormat='Due: {0:yyyy-MM-dd}'}"/> -->
-                                
-                                
+                                <Label Grid.Row="2">
+                                    <Label.Text>
+                                        <MultiBinding Converter="{StaticResource DateToTextConverter}">
+                                            <Binding Path="DueDate"/>
+                                            <Binding Path="IsComplete"/>
+                                        </MultiBinding>
+                                    </Label.Text>
+                                </Label>
+                                <Button
+                                Text="🗑"
+                                WidthRequest="12"
+                                HeightRequest="12"
+                                FontSize="12"
+                                Padding="0"
+                                Margin="0"
+                                BackgroundColor="#FFD8DD"
+                                TextColor="White"
+                                HorizontalOptions="End"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TaskListViewModel}}, Path=DeleteTaskCommand}"
+                                CommandParameter="{Binding .}" />
                             </Grid>
+
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

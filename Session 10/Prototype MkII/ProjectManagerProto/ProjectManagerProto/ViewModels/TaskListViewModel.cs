@@ -4,10 +4,12 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using static ProjectManagerProto.ViewModels.ProjectsViewModel;
 using CheckBox = Microsoft.UI.Xaml.Controls.CheckBox;
 using DatePicker = Microsoft.UI.Xaml.Controls.DatePicker;
 using ScrollBarVisibility = Microsoft.UI.Xaml.Controls.ScrollBarVisibility;
 using Task = ProjectManagerProto.Models.Task;
+using TimePicker = Microsoft.UI.Xaml.Controls.TimePicker;
 
 namespace ProjectManagerProto.ViewModels
 {
@@ -19,6 +21,8 @@ namespace ProjectManagerProto.ViewModels
         public ICommand TaskDoubleClickedCommand { get; }
         public ICommand AddTaskCommand { get; }
         public ICommand DeleteCompletedTasksCommand { get; }
+        public ICommand DeleteTaskCommand { get; }
+
 
         private TaskSortMode _sortMode = TaskSortMode.Name;
         private TaskFilterMode _filterMode = TaskFilterMode.All;
@@ -38,6 +42,7 @@ namespace ProjectManagerProto.ViewModels
             TaskDoubleClickedCommand = new Command<DisplayedTaskItem>(OnTaskDoubleClicked);
             AddTaskCommand = new Command(async () => await AddTaskAsync());
             DeleteCompletedTasksCommand = new Command(async () => await DeleteCompletedTasks());
+            DeleteTaskCommand = new Command(async item => await DeleteTaskAsync(item));
         }
 
         private async void OnTaskDoubleClicked(DisplayedTaskItem taskItem)
@@ -50,6 +55,7 @@ namespace ProjectManagerProto.ViewModels
 
             var description = new TextBox { Header = "Description", Text = taskItem.Description };
             var dueDatePicker = new DatePicker { Header = "Due Date", SelectedDate = taskItem.DueDate };
+            var dueTimePicker = new TimePicker { Header = "Due Time", SelectedTime = taskItem.DueDate?.TimeOfDay };
             var priorityBox = new NumberBox
             {
                 Header = "Priority",
@@ -79,6 +85,7 @@ namespace ProjectManagerProto.ViewModels
                         {
                             description,
                             dueDatePicker,
+                            dueTimePicker,
                             priorityBox,
                             notes,
                             completeBox,
@@ -93,7 +100,18 @@ namespace ProjectManagerProto.ViewModels
             if (result == ContentDialogResult.Primary)
             {
                 taskItem.Task.Description = description.Text;
-                taskItem.Task.DueDate = dueDatePicker.SelectedDate?.DateTime ?? taskItem.Task.DueDate;
+
+                DateTime? dueTime = dueDatePicker.SelectedDate?.DateTime.Date;
+                if (dueTime == null && dueTimePicker.SelectedTime != null)
+                {
+                    dueTime = DateTime.Today + dueTimePicker.Time;
+                }
+                else if (dueTime != null)
+                {
+                    dueTime += dueTimePicker.Time;
+                }
+                taskItem.Task.DueDate = dueTime;
+                
                 taskItem.Task.TaskPriority = new Priority((int)priorityBox.Value);
                 taskItem.Task.Notes = notes.Text;
                 taskItem.Task.IsComplete = completeBox.IsChecked ?? false;
@@ -132,6 +150,22 @@ namespace ProjectManagerProto.ViewModels
             if (confirm)
             {
                 SavedTaskList.DeleteAllCompletedTasks();
+                RefreshTasks();
+                ProjectsViewModel.RefreshProjectsStatic();
+            }
+        }
+
+        private async System.Threading.Tasks.Task DeleteTaskAsync(object item)
+        {
+            DisplayedTaskItem taskItem = item as DisplayedTaskItem;
+
+            bool confirm = await Page.DisplayAlert(
+                "Delete Task",
+                "Are you sure you want to delete the selected task?",
+                "Yes", "No");
+            if (confirm)
+            {
+                SavedTaskList.RemoveTask(taskItem.Task);
                 RefreshTasks();
                 ProjectsViewModel.RefreshProjectsStatic();
             }

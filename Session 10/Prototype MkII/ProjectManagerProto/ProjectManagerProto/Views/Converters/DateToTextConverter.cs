@@ -1,14 +1,29 @@
-﻿namespace ProjectManagerProto.Views.Converters
+﻿using System.Globalization;
+
+namespace ProjectManagerProto.Views.Converters
 {
-    public class DateToTextConverter : IValueConverter
+    public class DateToTextConverter : IMultiValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            return (value != null) ? $"Due: {value}" : "";
+            DateTime? dueDate = values[0] as DateTime?;
+            bool isComplete = values[1] as bool? ?? false;
+
+            if (dueDate == null)
+            {
+                return "No Due Date";
+            }
+            else if (dueDate.Value < DateTime.Now && !isComplete)
+            {
+                return $"Overdue!  →  Due: {dueDate.Value}";
+            }
+            else
+            {
+                return $"Due: {dueDate.Value}";
+            }
         }
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+            => throw new NotImplementedException();
     }
 }

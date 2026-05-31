@@ -21,10 +21,11 @@ namespace ProjectManagerProto.ViewModels
         private ProjectFilterMode _filterMode = ProjectFilterMode.All;
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        int numTaskListWindows = 0;
 
         #if WINDOWS
         private static readonly Dictionary<Project, Microsoft.Maui.Controls.Window> _openWindows = new();
-#endif
+        #endif
         public static ProjectsViewModel? Instance { get; private set; }
 
         public ProjectsViewModel()
@@ -104,7 +105,18 @@ namespace ProjectManagerProto.ViewModels
                 );
                 if (appWindow != null)
                 {
-                    appWindow.MoveAndResize(new Windows.Graphics.RectInt32(100, 700, 800, 600));
+                    // Have our TaskList windows cascase all fancy
+                    int x = 40 * numTaskListWindows;
+                    int y = 40 * numTaskListWindows;
+                    const int xInit = 840;
+                    const int yInit = 20;
+                    const int width = 800;
+                    const int height = 1000;
+
+                    const int maxWindowPositioningOffsets = 5;
+                    numTaskListWindows = (numTaskListWindows + 1) % maxWindowPositioningOffsets;
+
+                    appWindow.MoveAndResize(new Windows.Graphics.RectInt32(xInit + x, yInit + y, width, height));
                 }
                 
                 await System.Threading.Tasks.Task.Delay(250);
@@ -152,7 +164,7 @@ namespace ProjectManagerProto.ViewModels
             DisplayedProjectItem projectItem = item as DisplayedProjectItem;
 
             bool confirm = await Application.Current.MainPage.DisplayAlert(
-                "Delete Selected Project",
+                "Delete Project",
                 "Are you sure you want to delete the selected project?",
                 "Yes", "No");
             if (confirm)

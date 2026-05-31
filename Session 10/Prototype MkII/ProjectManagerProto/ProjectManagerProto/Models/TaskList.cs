@@ -19,5 +19,6 @@
         public override string ToString() => _name;
         public DateTime DateCreated { get; set; }
 
+        public void RemoveTask(Task task) => _tasks.Remove(task);
     }
 }
