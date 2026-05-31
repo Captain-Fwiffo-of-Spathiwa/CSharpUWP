@@ -1,32 +1,110 @@
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:ProjectManagerProto.ViewModels"
+             xmlns:converters="clr-namespace:ProjectManagerProto.Views.Converters"
              x:Class="ProjectManagerProto.Views.TaskListPage"
              Title="Task List">
-    <ContentPage.BindingContext>
-        <vm:TaskListViewModel />
-    </ContentPage.BindingContext>
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:BoolToStrikethroughConverter x:Key="BoolToStrikethroughConverter" />
+            <converters:BoolToItalicsConverter x:Key="BoolToItalicsConverter" />
+            <converters:BoolToGreyedConverter x:Key="BoolToGreyedConverter" />
+            <converters:DateToTextConverter x:Key="DateToTextConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
 
     <Grid ColumnDefinitions="240, *">
         <!-- Settings Section -->
-        <Grid Grid.Column="0" BackgroundColor="#EEE" Padding="16">
-            <Label Text="Settings" FontAttributes="Bold" FontSize="18" />
-            <!-- Settings controls go here -->
-        </Grid>
+        <ScrollView Grid.Column="0" BackgroundColor="#EEE" Padding="16" Orientation="Vertical">
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Settings" FontAttributes="Bold" FontSize="18" />
+
+                <!-- Add Task Button -->
+                <Button 
+                    Text="Add Task"
+                    BackgroundColor="SteelBlue"
+                    TextColor="White"
+                    HeightRequest="32"
+                    Margin="0,8,0,0"
+                    Pressed="OnAddButtonPressed"
+                    Released="OnAddButtonReleased"
+                    Command="{Binding AddTaskCommand}" />
+
+                <!-- Order Tasks Radio Buttons -->
+                <Label Text="Order by:" FontAttributes="Bold" Margin="0,12,0,0"/>
+                <VerticalStackLayout Spacing="2">
+                    <RadioButton Content="Name" GroupName="ProjectSort" IsChecked="{Binding SortByName, Mode=TwoWay}" />
+                    <RadioButton Content="Due Date" GroupName="ProjectSort" IsChecked="{Binding SortByDueDate, Mode=TwoWay}" />
+                    <RadioButton Content="Priority" GroupName="ProjectSort" IsChecked="{Binding SortByPriority, Mode=TwoWay}" />
+                </VerticalStackLayout>
+
+                <!-- Filter Tasks Radio Buttons -->
+                <Label Text="Show:" FontAttributes="Bold" Margin="0,12,0,0"/>
+                <VerticalStackLayout Spacing="2">
+                    <RadioButton Content="All" GroupName="ProjectFilter" IsChecked="{Binding FilterAll, Mode=TwoWay}" />
+                    <RadioButton Content="Complete" GroupName="ProjectFilter" IsChecked="{Binding FilterComplete, Mode=TwoWay}" />
+                    <RadioButton Content="Incomplete" GroupName="ProjectFilter" IsChecked="{Binding FilterIncomplete, Mode=TwoWay}" />
+                    <RadioButton Content="Overdue" GroupName="ProjectFilter" IsChecked="{Binding FilterOverdue, Mode=TwoWay}" />
+                </VerticalStackLayout>
+
+                <!-- Delete Completed Tasks Button -->
+                <Button
+                    Text="Delete Completed Tasks"
+                    BackgroundColor="Firebrick"
+                    TextColor="Black"
+                    HeightRequest="32"
+                    Margin="0,16,0,0"
+                    Pressed="OnDeleteButtonPressed"
+                    Released="OnDeleteButtonReleased"
+                    Command="{Binding DeleteCompletedTasksCommand}" />
+            </VerticalStackLayout>
+        </ScrollView>
 
         <!-- Tasks List Section -->
         <Grid Grid.Column="1" Padding="16" RowDefinitions="Auto, *">
             <Label Text="Tasks" FontAttributes="Bold" FontSize="18" Margin="0,0,0,8"/>
-            <CollectionView Grid.Row="1" ItemsSource="{Binding Tasks}">
+            <CollectionView Grid.Row="1" ItemsSource="{Binding DisplayedTasks}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Border Stroke="#CCC" StrokeThickness="1" Margin="0,0,0,8" Padding="12">
-                            <Grid RowDefinitions="Auto,Auto,Auto,Auto">
-                                <Label Text="{Binding Description}" FontSize="16" FontAttributes="Bold"/>
-                                <Label Grid.Row="1" Text="{Binding IsComplete, StringFormat='Completed: {0}'}"/>
-                                <Label Grid.Row="2" Text="{Binding DateCreated, StringFormat='Created: {0:yyyy-MM-dd}'}"/>
-                                <Label Grid.Row="3" Text="{Binding DueDate, StringFormat='Due: {0:yyyy-MM-dd}'}"/>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    NumberOfTapsRequired="2"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TaskListViewModel}}, Path=TaskDoubleClickedCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Grid RowDefinitions="Auto,Auto,Auto">
+                                <Label 
+                                    Grid.Row="0" 
+                                    FontSize="16"
+                                    Text="{Binding Description}"
+                                    TextColor="{Binding IsComplete, Converter={StaticResource BoolToGreyedConverter}}"
+                                    FontAttributes="{Binding IsComplete, Converter={StaticResource BoolToItalicsConverter}}"
+                                    TextDecorations="{Binding IsComplete, Converter={StaticResource BoolToStrikethroughConverter}}" />
+                                <Label Grid.Row="1" Text="{Binding PriorityValue, StringFormat='Priority: {0}'}"/>
+                                <Label Grid.Row="2">
+                                    <Label.Text>
+                                        <MultiBinding Converter="{StaticResource DateToTextConverter}">
+                                            <Binding Path="DueDate"/>
+                                            <Binding Path="IsComplete"/>
+                                        </MultiBinding>
+                                    </Label.Text>
+                                </Label>
+                                <Button
+                                Text="🗑"
+                                WidthRequest="12"
+                                HeightRequest="12"
+                                FontSize="12"
+                                Padding="0"
+                                Margin="0"
+                                BackgroundColor="#FFD8DD"
+                                TextColor="White"
+                                HorizontalOptions="End"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TaskListViewModel}}, Path=DeleteTaskCommand}"
+                                CommandParameter="{Binding .}" />
                             </Grid>
+
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

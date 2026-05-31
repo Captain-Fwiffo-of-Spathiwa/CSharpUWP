@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 
 
@@ -159,6 +160,10 @@ namespace ProjectManagerProto.Models
         }
 
         public DateTime DateCreated { get; set; }
+
+        public void DeleteAllCompletedTasks() => Tasks.RemoveAll(t => t.IsComplete);
+
+        public void RemoveTask(Task task) => Tasks.Remove(task);
 
     }
 }

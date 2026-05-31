@@ -78,13 +78,13 @@ namespace ProjectManagerProto.Models
         /// <summary>
         /// Return whether the Task is overdue.
         /// </summary>
-        public bool? Overdue
+        public bool Overdue
         {
             get
             {
                 if (DueDate is null)
                 {
-                    return null;
+                    return false;
                 }
 
                 return DueDate <= DateTime.Now;

@@ -80,17 +80,15 @@ can view and edit details of a Task, and set its completed status.
   * Notes
   * Priority
   * Due date
-  * Completion status (bool)
+  * Completion status
 * The non-editable field is:
   * Date created
-The delete button:
-  * Posts a warning dialog before deletion
-  * Closes that Task dialog upon deletion
 
 Notes:
 ------
 
-* When adding a new Task, the friendly format pattern is used, allowing entry in natural text.
-* Changes are saved automatically.
+* Saving to disk not required in prototype
+* When adding a new Task, the friendly format pattern is used, allowing entry in natural text
+  * Friendly formatting not required in prototype
 * Changes to a Task or Tasklist are updated automatically in the Projects Home Window
 * Closing the Projects Home Screen will close all TaskList windows.

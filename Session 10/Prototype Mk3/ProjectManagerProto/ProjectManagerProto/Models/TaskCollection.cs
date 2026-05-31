@@ -270,5 +270,8 @@ public class TaskCollection
 
     public void DeleteAllCompletedTaskLists() => TaskLists.RemoveAll(l => l.IncompleteTasksCount == 0);
 
+    public void RemoveTaskList(TaskList taskList) => TaskLists.Remove(taskList);
+
+
     }
 }

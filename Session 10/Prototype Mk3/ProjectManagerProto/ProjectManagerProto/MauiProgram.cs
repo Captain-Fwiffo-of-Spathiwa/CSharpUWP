@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.Maui;
-using Microsoft.Maui.Hosting;
 using Microsoft.UI.Windowing;
 using Microsoft.Maui.LifecycleEvents;
 using Windows.Graphics;
+
+
 
 namespace ProjectManagerProto
 {
@@ -21,7 +21,7 @@ namespace ProjectManagerProto
                 })
                 .ConfigureLifecycleEvents(events =>
                 {
-#if WINDOWS
+                    #if WINDOWS
                     events.AddWindows(windows =>
                     {
                         windows.OnWindowCreated(window =>
@@ -29,7 +29,7 @@ namespace ProjectManagerProto
                             const int x = 20;
                             const int y = 20;
                             const int width = 800;
-                            const int height = 600;
+                            const int height = 1000;
 
                             var mauiWinUIWindow = (Microsoft.UI.Xaml.Window)window;
                             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(mauiWinUIWindow);
@@ -42,12 +42,12 @@ namespace ProjectManagerProto
                             }
                         });
                     });
-#endif
+                    #endif
                 });
 
-#if DEBUG
+            #if DEBUG
             builder.Logging.AddDebug();
-#endif
+            #endif
 
             return builder.Build();
         }

@@ -17,7 +17,7 @@
                 <Button 
                     Text="Add Project"
                     BackgroundColor="LimeGreen"
-                    TextColor="Black"
+                    TextColor="White"
                     HeightRequest="32"
                     Margin="0,8,0,0"
                     Pressed="OnAddButtonPressed"
@@ -43,8 +43,8 @@
                 <!-- Delete Completed Projects Button -->
                 <Button
                     Text="Delete Completed Projects"
-                    BackgroundColor="Maroon"
-                    TextColor="White"
+                    BackgroundColor="Firebrick"
+                    TextColor="Black"
                     HeightRequest="32"
                     Margin="0,16,0,0"
                     Pressed="OnDeleteButtonPressed"
@@ -63,7 +63,7 @@
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer
                                     NumberOfTapsRequired="2"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProjectsViewModel}}, Path=ProjectDoubleTappedCommand}"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProjectsViewModel}}, Path=ProjectDoubleClickedCommand}"
                                     CommandParameter="{Binding .}" />
                             </Border.GestureRecognizers>
                             <Grid RowDefinitions="Auto,Auto,Auto,Auto">
@@ -71,6 +71,18 @@
                                 <Label Grid.Row="1" Text="{Binding TotalTasksCount, StringFormat='Tasks: {0}'}"/>
                                 <Label Grid.Row="2" Text="{Binding PercentComplete, StringFormat='Complete: {0:F0}%'}"/>
                                 <Label Grid.Row="3" Text="{Binding DateCreated, StringFormat='Created: {0:yyyy-MM-dd}'}"/>
+                            <Button
+                                Text="🗑"
+                                WidthRequest="12"
+                                HeightRequest="12"
+                                FontSize="12"
+                                Padding="0"
+                                Margin="0"
+                                BackgroundColor="#FFD8DD"
+                                TextColor="White"
+                                HorizontalOptions="End"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProjectsViewModel}}, Path=DeleteProjectCommand}"
+                                CommandParameter="{Binding .}" />
                             </Grid>
                         </Border>
                     </DataTemplate>

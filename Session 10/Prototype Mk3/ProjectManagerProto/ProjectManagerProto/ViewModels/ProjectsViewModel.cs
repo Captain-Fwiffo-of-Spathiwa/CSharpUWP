@@ -5,28 +5,54 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Task = System.Threading.Tasks.Task;
 
+
+
 namespace ProjectManagerProto.ViewModels
 {
+    public enum ProjectSortMode
+    {
+        Name,
+        TaskCount,
+        CompletionPercentage
+    }
+
+    public enum ProjectFilterMode
+    {
+        All,
+        Complete,
+        Incomplete
+    }
+
     public class ProjectsViewModel : INotifyPropertyChanged
     {
+        // Sorting and filtering is done by maintaining a saved list and a presentation list
         private readonly TaskCollection SavedProjects = new();
         public ObservableCollection<DisplayedProjectItem> DisplayedProjects { get; } = new();
 
-        public ICommand ProjectDoubleTappedCommand { get; }
-        public ICommand AddProjectCommand { get; }
-        public ICommand DeleteCompletedProjectsCommand { get; }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
         private ProjectSortMode _sortMode = ProjectSortMode.Name;
         private ProjectFilterMode _filterMode = ProjectFilterMode.All;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
+        // Buttons and double-clicks
+        public ICommand ProjectDoubleClickedCommand { get; }
+        public ICommand AddProjectCommand { get; }
+        public ICommand DeleteCompletedProjectsCommand { get; }
+        public ICommand DeleteProjectCommand { get; }
+
+        // Window counts for window positioning
+        int numTaskListWindows = 0;
 
         #if WINDOWS
         private static readonly Dictionary<Project, Microsoft.Maui.Controls.Window> _openWindows = new();
         #endif
 
+        // A bit dirty by we set a static with this instance to easily call this ViewModel
+        public static ProjectsViewModel? Instance { get; private set; }
+
         public ProjectsViewModel()
         {
+            Instance = this;
+
             var sample = SampleData.Create();
             foreach (var list in sample.GetTaskLists())
             {
@@ -37,9 +63,26 @@ namespace ProjectManagerProto.ViewModels
             }
             RefreshProjects();
 
-            ProjectDoubleTappedCommand = new Command<DisplayedProjectItem>(OnProjectDoubleClicked);
-            DeleteCompletedProjectsCommand = new Command(async () => await DeleteCompletedProjects());
+            ProjectDoubleClickedCommand = new Command<DisplayedProjectItem>(OnProjectDoubleClicked);
             AddProjectCommand = new Command(async () => await AddProjectAsync());
+            DeleteCompletedProjectsCommand = new Command(async () => await DeleteCompletedProjects());
+            DeleteProjectCommand = new Command(async item => await DeleteProjectAsync(item));
+        }
+
+        public static void RefreshProjectsStatic()
+        {
+            Instance?.RefreshProjects();
+        }
+
+        public static void CloseAllProjectWindows()
+        {
+            #if WINDOWS
+            foreach (var win in _openWindows.Values)
+            {
+                Application.Current.CloseWindow(win);
+            }
+            _openWindows.Clear();
+            #endif
         }
 
         private async void OnProjectDoubleClicked(DisplayedProjectItem projectItem)
@@ -61,7 +104,7 @@ namespace ProjectManagerProto.ViewModels
             var window = new Microsoft.Maui.Controls.Window
             {
                 Page = new ProjectManagerProto.Views.TaskListPage(projectItem.Project),
-                Title = "Project Details"
+                Title = projectItem.Name
             };
 
             _openWindows[projectItem.Project] = window;
@@ -83,23 +126,23 @@ namespace ProjectManagerProto.ViewModels
                 );
                 if (appWindow != null)
                 {
-                    appWindow.MoveAndResize(new Windows.Graphics.RectInt32(100, 700, 800, 600));
+                    // Have our TaskList windows cascade all fancy
+                    int x = 40 * numTaskListWindows;
+                    int y = 40 * numTaskListWindows;
+                    const int xInit = 840;
+                    const int yInit = 20;
+                    const int width = 800;
+                    const int height = 1000;
+
+                    const int maxWindowPositioningOffsets = 5;
+                    numTaskListWindows = (numTaskListWindows + 1) % maxWindowPositioningOffsets;
+
+                    appWindow.MoveAndResize(new Windows.Graphics.RectInt32(xInit + x, yInit + y, width, height));
                 }
                 
                 await System.Threading.Tasks.Task.Delay(250);
                 mauiWinUIWindow?.Activate();
             }
-            #endif
-        }
-
-        public static void CloseAllProjectWindows()
-        {
-            #if WINDOWS
-            foreach (var win in _openWindows.Values)
-            {
-                Application.Current.CloseWindow(win);
-            }
-            _openWindows.Clear();
             #endif
         }
 
@@ -118,12 +161,36 @@ namespace ProjectManagerProto.ViewModels
         private async Task DeleteCompletedProjects()
         {
             bool confirm = await Application.Current.MainPage.DisplayAlert(
-                "Warning",
+                "Delete All Completed Projects",
                 "Are you sure you want to delete all completed projects?",
                 "Yes", "No");
             if (confirm)
             {
+                // Close any completed Project windows that are open
+                foreach (var project in SavedProjects.GetTaskLists())
+                {
+                    if (project.IncompleteTasksCount == 0)
+                    {
+                        Application.Current.CloseWindow(_openWindows[project as Project]);
+                    }
+                }
+
                 SavedProjects.DeleteAllCompletedTaskLists();
+                RefreshProjects();
+            }
+        }
+
+        private async Task DeleteProjectAsync(object item)
+        {
+            DisplayedProjectItem projectItem = item as DisplayedProjectItem;
+
+            bool confirm = await Application.Current.MainPage.DisplayAlert(
+                "Delete Project",
+                "Are you sure you want to delete the selected project?",
+                "Yes", "No");
+            if (confirm)
+            {
+                SavedProjects.RemoveTaskList(projectItem.Project);
                 RefreshProjects();
             }
         }
@@ -188,12 +255,12 @@ namespace ProjectManagerProto.ViewModels
 
         public void RefreshProjects()
         {
-            // Get all the TaskLists stored in SavedProjects
+            // Get all the saved TaskLists
             var projects = SavedProjects
                 .GetTaskLists()
                 .Select(taskList => taskList as Project ?? throw new InvalidOperationException("TaskCollection contains a non-Project TaskList."));
 
-            // This switch returns a filtered version of projects, based on what ProjectFilterMode is
+            // This switch returns a filtered version of Projects, based on what ProjectFilterMode was set
             projects = _filterMode switch
             {
                 ProjectFilterMode.Complete => projects.Where(project => project.PercentComplete >= 100),
@@ -201,7 +268,7 @@ namespace ProjectManagerProto.ViewModels
                 _ => projects
             };
 
-            // This switch returns a different ordering of projects, based on what ProjectSortMode is
+            // This switch returns a different ordering of Projects, based on what ProjectSortMode was set
             projects = _sortMode switch
             {
                 ProjectSortMode.TaskCount => projects.OrderByDescending(project => project.TotalTasksCount),
@@ -224,18 +291,18 @@ namespace ProjectManagerProto.ViewModels
 
         public sealed class DisplayedProjectItem
         {
+            public DisplayedProjectItem(Project project)
+            {
+                Project = project;
+            }
+
             public Project Project { get; }
 
             public string Name => Project.GetName();
             public int TotalTasksCount => Project.TotalTasksCount;
             public int IncompleteTasksCount => Project.IncompleteTasksCount;
             public float PercentComplete => Project.PercentComplete;
-
-            public DisplayedProjectItem(Project project)
-            {
-                Project = project;
-            }
+            public DateTime DateCreated => Project.DateCreated;
         }
-
     }
 }
