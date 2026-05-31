@@ -1,14 +1,9 @@
-﻿using Microsoft.Maui;
-using Microsoft.Maui.Controls;
-using Microsoft.UI.Xaml.Controls;
+﻿using Microsoft.UI.Xaml.Controls;
 using ProjectManagerProto.Models;
-using ProjectManagerProto.Views;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using System.Windows.Input;
-using static ProjectManagerProto.ViewModels.ProjectsViewModel;
 using CheckBox = Microsoft.UI.Xaml.Controls.CheckBox;
 using DatePicker = Microsoft.UI.Xaml.Controls.DatePicker;
 using ScrollBarVisibility = Microsoft.UI.Xaml.Controls.ScrollBarVisibility;
@@ -37,7 +32,6 @@ namespace ProjectManagerProto.ViewModels
         public TaskListViewModel(Project project, Microsoft.Maui.Controls.Page page)
         {
             Page = page;
-
             SavedTaskList = project;
             RefreshTasks();
 
@@ -48,12 +42,10 @@ namespace ProjectManagerProto.ViewModels
 
         private async void OnTaskDoubleClicked(DisplayedTaskItem taskItem)
         {
-            #if WINDOWS
-            // Get the current MAUI window
-            var mauiWindow = Application.Current.Windows.FirstOrDefault(w => w.Page is TaskListPage);
-            if (mauiWindow == null) return;
-
-            var nativeWindow = mauiWindow.Handler.PlatformView as Microsoft.UI.Xaml.Window;
+#if WINDOWS
+            // Use the Page passed to the ctor to find this TaskList's window,
+            // so that multiple windows can have their own modal dialogs.
+            var nativeWindow = Page.Handler.PlatformView as Microsoft.UI.Xaml.FrameworkElement;
             if (nativeWindow == null) return;
 
             var description = new TextBox { Header = "Description", Text = taskItem.Description };
@@ -73,7 +65,7 @@ namespace ProjectManagerProto.ViewModels
             var dialog = new ContentDialog
             {
                 Title = "Edit Task",
-                XamlRoot = nativeWindow.Content.XamlRoot,
+                XamlRoot = nativeWindow.XamlRoot,
                 PrimaryButtonText = "OK",
                 CloseButtonText = "Cancel",
                 DefaultButton = ContentDialogButton.Primary,
@@ -107,8 +99,9 @@ namespace ProjectManagerProto.ViewModels
                 taskItem.Task.IsComplete = completeBox.IsChecked ?? false;
                 
                 RefreshTasks();
+                ProjectsViewModel.RefreshProjectsStatic();
             }
-            #endif
+#endif
         }
 
         private async System.Threading.Tasks.Task AddTaskAsync()
@@ -125,7 +118,8 @@ namespace ProjectManagerProto.ViewModels
             {
                 SavedTaskList.AddTask(new("Make biscuits for doggers"));
                 RefreshTasks();
-            }            
+                ProjectsViewModel.RefreshProjectsStatic();
+            }
         }
 
         private async System.Threading.Tasks.Task DeleteCompletedTasks()
@@ -139,6 +133,7 @@ namespace ProjectManagerProto.ViewModels
             {
                 SavedTaskList.DeleteAllCompletedTasks();
                 RefreshTasks();
+                ProjectsViewModel.RefreshProjectsStatic();
             }
         }
 

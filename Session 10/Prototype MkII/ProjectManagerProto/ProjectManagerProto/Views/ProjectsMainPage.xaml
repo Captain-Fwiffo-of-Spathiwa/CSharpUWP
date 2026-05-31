@@ -71,6 +71,18 @@
                                 <Label Grid.Row="1" Text="{Binding TotalTasksCount, StringFormat='Tasks: {0}'}"/>
                                 <Label Grid.Row="2" Text="{Binding PercentComplete, StringFormat='Complete: {0:F0}%'}"/>
                                 <Label Grid.Row="3" Text="{Binding DateCreated, StringFormat='Created: {0:yyyy-MM-dd}'}"/>
+                            <Button
+                                Text="🗑"
+                                WidthRequest="12"
+                                HeightRequest="12"
+                                FontSize="12"
+                                Padding="0"
+                                Margin="0"
+                                BackgroundColor="#FFD8DD"
+                                TextColor="White"
+                                HorizontalOptions="End"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProjectsViewModel}}, Path=DeleteProjectCommand}"
+                                CommandParameter="{Binding .}" />
                             </Grid>
                         </Border>
                     </DataTemplate>

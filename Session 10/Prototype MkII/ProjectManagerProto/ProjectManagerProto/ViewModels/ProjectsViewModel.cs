@@ -15,6 +15,7 @@ namespace ProjectManagerProto.ViewModels
         public ICommand ProjectDoubleClickedCommand { get; }
         public ICommand AddProjectCommand { get; }
         public ICommand DeleteCompletedProjectsCommand { get; }
+        public ICommand DeleteProjectCommand { get; }
 
         private ProjectSortMode _sortMode = ProjectSortMode.Name;
         private ProjectFilterMode _filterMode = ProjectFilterMode.All;
@@ -23,10 +24,13 @@ namespace ProjectManagerProto.ViewModels
 
         #if WINDOWS
         private static readonly Dictionary<Project, Microsoft.Maui.Controls.Window> _openWindows = new();
-        #endif
+#endif
+        public static ProjectsViewModel? Instance { get; private set; }
 
         public ProjectsViewModel()
         {
+            Instance = this;
+
             var sample = SampleData.Create();
             foreach (var list in sample.GetTaskLists())
             {
@@ -40,6 +44,12 @@ namespace ProjectManagerProto.ViewModels
             ProjectDoubleClickedCommand = new Command<DisplayedProjectItem>(OnProjectDoubleClicked);
             AddProjectCommand = new Command(async () => await AddProjectAsync());
             DeleteCompletedProjectsCommand = new Command(async () => await DeleteCompletedProjects());
+            DeleteProjectCommand = new Command(async item => await DeleteProjectAsync(item));
+        }
+
+        public static void RefreshProjectsStatic()
+        {
+            Instance?.RefreshProjects();
         }
 
         public static void CloseAllProjectWindows()
@@ -72,7 +82,7 @@ namespace ProjectManagerProto.ViewModels
             var window = new Microsoft.Maui.Controls.Window
             {
                 Page = new ProjectManagerProto.Views.TaskListPage(projectItem.Project),
-                Title = "Project Details"
+                Title = projectItem.Name
             };
 
             _openWindows[projectItem.Project] = window;
@@ -118,12 +128,36 @@ namespace ProjectManagerProto.ViewModels
         private async Task DeleteCompletedProjects()
         {
             bool confirm = await Application.Current.MainPage.DisplayAlert(
-                "Warning",
+                "Delete All Completed Projects",
                 "Are you sure you want to delete all completed projects?",
                 "Yes", "No");
             if (confirm)
             {
+                // Close any completed Project windows that are open
+                foreach (var project in SavedProjects.GetTaskLists())
+                {
+                    if (project.IncompleteTasksCount == 0)
+                    {
+                        Application.Current.CloseWindow(_openWindows[project as Project]);
+                    }
+                }
+
                 SavedProjects.DeleteAllCompletedTaskLists();
+                RefreshProjects();
+            }
+        }
+
+        private async Task DeleteProjectAsync(object item)
+        {
+            DisplayedProjectItem projectItem = item as DisplayedProjectItem;
+
+            bool confirm = await Application.Current.MainPage.DisplayAlert(
+                "Delete Selected Project",
+                "Are you sure you want to delete the selected project?",
+                "Yes", "No");
+            if (confirm)
+            {
+                SavedProjects.RemoveTaskList(projectItem.Project);
                 RefreshProjects();
             }
         }
@@ -235,6 +269,7 @@ namespace ProjectManagerProto.ViewModels
             public int TotalTasksCount => Project.TotalTasksCount;
             public int IncompleteTasksCount => Project.IncompleteTasksCount;
             public float PercentComplete => Project.PercentComplete;
+            public DateTime DateCreated => Project.DateCreated;
         }
     }
 }

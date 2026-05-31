@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace ProjectManagerProto.Models
+﻿namespace ProjectManagerProto.Models
 {
     public class TaskCollection
     {
@@ -14,5 +11,7 @@ namespace ProjectManagerProto.Models
         public List<TaskList> GetTaskLists() => _taskLists;
         public void DeleteAllCompletedTaskLists() => _taskLists.RemoveAll(l => l.IncompleteTasksCount == 0);
         public override string ToString() => $"TaskCollection: {_taskLists.Count} lists";
+
+        public void RemoveTaskList(TaskList taskList) => _taskLists.Remove(taskList);
     }
 }

@@ -1,8 +1,18 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:ProjectManagerProto.ViewModels"
+             xmlns:converters="clr-namespace:ProjectManagerProto.Views.Converters"
              x:Class="ProjectManagerProto.Views.TaskListPage"
              Title="Task List">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:BoolToStrikethroughConverter x:Key="BoolToStrikethroughConverter" />
+            <converters:BoolToItalicsConverter x:Key="BoolToItalicsConverter" />
+            <converters:BoolToGreyedConverter x:Key="BoolToGreyedConverter" />
+            <converters:DateToTextConverter x:Key="DateToTextConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
 
     <Grid ColumnDefinitions="240, *">
         <!-- Settings Section -->
@@ -64,11 +74,21 @@
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TaskListViewModel}}, Path=TaskDoubleClickedCommand}"
                                     CommandParameter="{Binding .}" />
                             </Border.GestureRecognizers>
-                            <Grid RowDefinitions="Auto,Auto,Auto,Auto">
-                                <Label Text="{Binding Description}" FontSize="16" FontAttributes="Bold"/>
-                                <Label Grid.Row="1" Text="{Binding IsComplete, StringFormat='Completed: {0}'}"/>
-                                <Label Grid.Row="2" Text="{Binding DateCreated, StringFormat='Created: {0:yyyy-MM-dd}'}"/>
-                                <Label Grid.Row="3" Text="{Binding DueDate, StringFormat='Due: {0:yyyy-MM-dd}'}"/>
+                            <Grid RowDefinitions="Auto,Auto,Auto">
+                                <Label 
+                                    Grid.Row="0" 
+                                    FontSize="16"
+                                    Text="{Binding Description}"
+                                    TextColor="{Binding IsComplete, Converter={StaticResource BoolToGreyedConverter}}"
+                                    FontAttributes="{Binding IsComplete, Converter={StaticResource BoolToItalicsConverter}}"
+                                    TextDecorations="{Binding IsComplete, Converter={StaticResource BoolToStrikethroughConverter}}" />
+                                <Label Grid.Row="1" Text="{Binding PriorityValue, StringFormat='Priority: {0}'}"/>
+                                <Label
+                                    Grid.Row="2"
+                                    Text="{Binding DueDate, Converter={StaticResource DateToTextConverter}}"/>
+                                    <!-- Text="{Binding DueDate, StringFormat='Due: {0:yyyy-MM-dd}'}"/> -->
+                                
+                                
                             </Grid>
                         </Border>
                     </DataTemplate>
