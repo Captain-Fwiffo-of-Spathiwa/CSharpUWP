@@ -169,7 +169,7 @@ namespace ProjectManagerProto.ViewModels
                 {
                     if (project.IncompleteTasksCount == 0 && _openWindows.ContainsKey(project))
                     {
-                        Application.Current.CloseWindow(_openWindows[project as Project]);
+                        Application.Current.CloseWindow(_openWindows[project]);
                     }
                 }
 
@@ -188,6 +188,11 @@ namespace ProjectManagerProto.ViewModels
                 "Yes", "No");
             if (confirm)
             {
+                if (_openWindows.ContainsKey(projectItem.Project))
+                {
+                    Application.Current.CloseWindow(_openWindows[projectItem.Project]);
+                }
+
                 SavedProjects.RemoveTaskList(projectItem.Project);
                 RefreshProjects();
             }
