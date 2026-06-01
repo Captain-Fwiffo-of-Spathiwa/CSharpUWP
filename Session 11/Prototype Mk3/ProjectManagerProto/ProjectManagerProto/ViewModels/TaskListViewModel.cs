@@ -118,16 +118,31 @@ namespace ProjectManagerProto.ViewModels
             {
                 taskItem.Task.Description = description.Text;
 
-                DateTime? dueTime = dueDatePicker.SelectedDate?.DateTime.Date;
-                if (dueTime == null && dueTimePicker.SelectedTime != null)
+                DateTime? whenDue = null;
+                
+                // If the user set a date ...
+                if (dueDatePicker.SelectedDate != null)
                 {
-                    dueTime = DateTime.Today + dueTimePicker.Time;
+                    // ... add the time the user set, else use 5pm if they didn't set a time
+                    if (dueTimePicker.Time >= TimeSpan.Zero)
+                    {
+                        whenDue = dueDatePicker.SelectedDate?.DateTime.Date + dueTimePicker.Time;
+                    }
+                    else
+                    {
+                        whenDue = dueDatePicker.SelectedDate?.DateTime.Date + TimeSpan.FromHours(17);
+                    }
                 }
-                else if (dueTime != null)
+                // Else, the user didn't set a date
+                else
                 {
-                    dueTime += dueTimePicker.Time;
+                    // ... so use a due date only if they did at least set a time
+                    if (dueTimePicker.SelectedTime != null)
+                    {
+                        whenDue = DateTime.Today + dueTimePicker.Time;
+                    }
                 }
-                taskItem.Task.DueDate = dueTime;
+                taskItem.Task.DueDate = whenDue;
                 
                 taskItem.Task.TaskPriority = new Priority((int)priorityBox.Value);
                 taskItem.Task.Notes = notes.Text;
@@ -136,7 +151,7 @@ namespace ProjectManagerProto.ViewModels
                 RefreshTasks();
                 ProjectsViewModel.RefreshProjectsStatic();
             }
-#endif
+            #endif
         }
 
         private async System.Threading.Tasks.Task AddTaskAsync()
