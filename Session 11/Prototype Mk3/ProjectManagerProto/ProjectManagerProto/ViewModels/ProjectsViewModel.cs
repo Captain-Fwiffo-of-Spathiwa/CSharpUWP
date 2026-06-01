@@ -101,7 +101,7 @@ namespace ProjectManagerProto.ViewModels
             var window = new Microsoft.Maui.Controls.Window
             {
                 Page = new ProjectManagerProto.Views.TaskListPage(projectItem.Project),
-                Title = projectItem.Name
+                Title = $"{projectItem.Name} Project"
             };
 
             _openWindows[projectItem.Project] = window;

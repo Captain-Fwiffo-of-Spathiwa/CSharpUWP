@@ -48,6 +48,9 @@ namespace ProjectManagerProto.ViewModels
         // Hold a reference to this Page for window management
         private readonly Microsoft.Maui.Controls.Page Page;
 
+        // Friendly name for cutes
+        public string FriendlyName => $"{SavedTaskList.GetName()} {GetRandomSmiley()}";
+
         public TaskListViewModel() {}
 
         public TaskListViewModel(Project project, Microsoft.Maui.Controls.Page page)
@@ -302,6 +305,32 @@ namespace ProjectManagerProto.ViewModels
         private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private string GetRandomSmiley()
+        {
+            int random = Random.Shared.Next(1, 16);
+
+            switch (random)
+            {
+                case 1: return "😄";
+                case 2: return "😅";
+                case 3: return "🙂";
+                case 4: return "🙃";
+                case 5: return "🤣";
+                case 6: return "🧐";
+                case 7: return "🤩";
+                case 8: return "🤪";
+                case 9: return "😘";
+                case 10: return "🥰";
+                case 11: return "🤑";
+                case 12: return "🤯";
+                case 13: return "🥴";
+                case 14: return "🥳";
+                case 15: return "😎";
+            }
+
+            return "🤕";
         }
 
         public sealed class DisplayedTaskItem
