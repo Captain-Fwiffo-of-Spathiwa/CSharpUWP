@@ -42,11 +42,16 @@ namespace ProjectManagerProto.Helpers
             writer.Write(value);
         }
 
+        static public void SaveAndPrintFloat(BinaryWriter writer, float value)
+        {
+            writer.Write(value);
+        }
+
 
         /* ----------------------------------------------------------------
          *  The logic of binary reading means we were never going to avoid
          *  all these overloads.
-         * ---------------------------------------------------------------*/ 
+         * ---------------------------------------------------------------*/
         static public int LoadAndPrintInt(BinaryReader reader)
         {
             var value = reader.ReadInt32();
@@ -68,6 +73,12 @@ namespace ProjectManagerProto.Helpers
         static public string LoadAndPrintString(BinaryReader reader)
         {
             var value = reader.ReadString();
+            return value;
+        }
+
+        static public float LoadAndPrintFloat(BinaryReader reader)
+        {
+            var value = reader.ReadSingle();
             return value;
         }
     }

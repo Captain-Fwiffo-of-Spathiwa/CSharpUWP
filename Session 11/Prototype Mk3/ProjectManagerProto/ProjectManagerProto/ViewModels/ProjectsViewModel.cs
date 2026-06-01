@@ -1,6 +1,7 @@
 ﻿using ProjectManagerProto.Models;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Task = System.Threading.Tasks.Task;
@@ -25,6 +26,9 @@ namespace ProjectManagerProto.ViewModels
 
     public class ProjectsViewModel : INotifyPropertyChanged
     {
+        // Binary save files are saved to the application's local folder, with this name
+        string saveFilename = "ProjectManagerMk3.bin";
+        
         // Sorting and filtering is done by maintaining a saved list and a presentation list
         private readonly TaskCollection SavedProjects = new();
         public ObservableCollection<DisplayedProjectItem> DisplayedProjects { get; } = new();
@@ -52,6 +56,7 @@ namespace ProjectManagerProto.ViewModels
         public ProjectsViewModel()
         {
             Instance = this;
+            SavedProjects.Load(saveFilename);
 
             RefreshProjects();
 
@@ -156,12 +161,13 @@ namespace ProjectManagerProto.ViewModels
                 "Delete All Completed Projects",
                 "Are you sure you want to delete all completed projects?",
                 "Yes", "No");
+
             if (confirm)
             {
                 // Close any completed Project windows that are open
-                foreach (var project in SavedProjects.GetTaskLists())
+                foreach (Project project in SavedProjects.GetTaskLists())
                 {
-                    if (project.IncompleteTasksCount == 0)
+                    if (project.IncompleteTasksCount == 0 && _openWindows.ContainsKey(project))
                     {
                         Application.Current.CloseWindow(_openWindows[project as Project]);
                     }
@@ -245,7 +251,7 @@ namespace ProjectManagerProto.ViewModels
             RefreshProjects();
         }
 
-        public void RefreshProjects()
+        public async void RefreshProjects()
         {
             // Get all the saved TaskLists
             var projects = SavedProjects
@@ -274,6 +280,8 @@ namespace ProjectManagerProto.ViewModels
             {
                 DisplayedProjects.Add(new DisplayedProjectItem(project));
             }
+
+            await SavedProjects.Save(saveFilename);
         }
 
         private void OnPropertyChanged([CallerMemberName] string? propertyName = null)

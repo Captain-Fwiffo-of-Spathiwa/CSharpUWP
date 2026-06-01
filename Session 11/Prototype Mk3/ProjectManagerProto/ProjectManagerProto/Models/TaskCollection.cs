@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Text;
 using ProjectManagerProto.Helpers;
 using File = System.IO.File;
@@ -104,49 +100,64 @@ public class TaskCollection
         }
     }
 
-    /// <summary>
-    /// Destructively attempted a binary load. If the load fails, this
-    /// object's current data will be destroyed in the process.
-    /// </summary>
-    public void Load(String binarySaveFilename)
-    {
-        TaskLists = new();
-
-        string file = Path.Combine(FileSystem.Current.AppDataDirectory, binarySaveFilename);
-        Debug.WriteLine($"Attempting to load from:\n\t{file}");
-
-        try
+        /// <summary>
+        /// Destructively attempted a binary load. If the load fails, this
+        /// object's current data will be destroyed in the process.
+        /// </summary>
+        public void Load(String binarySaveFilename)
         {
-            using (var stream = File.Open(file, FileMode.Open))
-            {
-                using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
-                {
-                    int numTaskLists = SaveUtils.LoadAndPrintInt(reader);
+            TaskLists = new();
 
-                    for (int i = 0; i < numTaskLists; ++i)
+            string file = Path.Combine(FileSystem.Current.AppDataDirectory, binarySaveFilename);
+            Debug.WriteLine($"Attempting to load from:\n\t{file}");
+
+            try
+            {
+                using (var stream = File.Open(file, FileMode.Open))
+                {
+                    using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
                     {
-                        TaskLists.Add(new("temp TaskList"));
-                        TaskLists.Last().LoadFrom(reader);
+                        int numTaskLists = SaveUtils.LoadAndPrintInt(reader);
+
+                        for (int i = 0; i < numTaskLists; ++i)
+                        {
+                            int taskListType = SaveUtils.LoadAndPrintInt(reader);
+
+                            switch (taskListType)
+                            {
+                                case 0:
+                                    TaskLists.Add(new TaskList("temp TaskList"));
+                                    break;
+
+                                case 1:
+                                    TaskLists.Add(new Project("temp Project"));
+                                    break;
+
+                                default:
+                                    break;
+                            }
+
+                            TaskLists.Last().LoadFrom(reader);
+                        }
                     }
                 }
             }
+            catch (FileNotFoundException ex)
+            {
+                // We can check this with a breakpoint, manually deleting the file, then continuing
+                Debug.WriteLine($"Could not open {binarySaveFilename} for reading. File not found.");
+            }
+            catch (IOException ex)
+            {
+                Debug.WriteLine($"Could not open {binarySaveFilename} for reading. Disk or file error.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error loading data. Exception message: {ex.Message}");
+            }
         }
-        catch (FileNotFoundException ex)
-        {
-            // We can check this with a breakpoint, manually deleting the file, then continuing
-            Debug.WriteLine($"Could not open {binarySaveFilename} for reading. File not found.");
-        }
-        catch (IOException ex)
-        {
-            Debug.WriteLine($"Could not open {binarySaveFilename} for reading. Disk or file error.");
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error loading data. Exception message: {ex.Message}");
-        }
-    }
 
-    public void PrintAllTaskListTasks()
+        public void PrintAllTaskListTasks()
     {
         foreach (var taskList in TaskLists)
         {

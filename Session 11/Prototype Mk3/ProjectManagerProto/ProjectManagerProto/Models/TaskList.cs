@@ -45,6 +45,7 @@ namespace ProjectManagerProto.Models
             }
 
             SetName(name);
+            DateCreated = DateTime.Now;
         }
 
         public string GetName()
@@ -78,10 +79,17 @@ namespace ProjectManagerProto.Models
         }
 
         // Assessment 4 additions
-        public void SaveTo(BinaryWriter writer)
+        public virtual void SaveTo(BinaryWriter writer)
+        {
+            SaveUtils.SaveAndPrintInt(writer, 0);   // Save a 0 to indicate this is a base class
+            SaveDataTo(writer);
+        }
+
+        protected void SaveDataTo(BinaryWriter writer)
         {
             SaveUtils.SaveAndPrintString(writer, _name);
             SaveUtils.SaveAndPrintInt(writer, Tasks.Count);
+            SaveUtils.SaveAndPrintLong(writer, DateCreated.Ticks);
 
             foreach (var task in Tasks)
             {
@@ -104,6 +112,7 @@ namespace ProjectManagerProto.Models
             // attempting to load that Task subtype.
             _name = SaveUtils.LoadAndPrintString(reader);
             int numTasks = SaveUtils.LoadAndPrintInt(reader);
+            DateCreated = new(SaveUtils.LoadAndPrintLong(reader));
 
             for (int i = 0; i < numTasks; ++i)
             {

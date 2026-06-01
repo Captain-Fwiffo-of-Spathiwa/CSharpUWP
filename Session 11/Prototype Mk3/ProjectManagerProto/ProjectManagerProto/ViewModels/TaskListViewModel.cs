@@ -77,7 +77,7 @@ namespace ProjectManagerProto.ViewModels
             {
                 Header = "Priority",
                 Value = taskItem.PriorityValue,
-                Minimum = 1,
+                Minimum = 0,
                 Maximum = 100,
                 SpinButtonPlacementMode = NumberBoxSpinButtonPlacementMode.Inline
             };
