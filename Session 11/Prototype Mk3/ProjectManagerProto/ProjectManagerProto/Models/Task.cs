@@ -12,7 +12,11 @@ namespace ProjectManagerProto.Models
         /// <summary>
         /// The priority's value. Lower value means higher priority.
         /// </summary>
-        public int Value = 0;
+        public int Value = 10;
+
+        public Priority()
+        {
+        }
 
         public Priority(int value)
         {
@@ -73,7 +77,7 @@ namespace ProjectManagerProto.Models
         /// <summary>
         /// Return whether the Task is complete.
         /// </summary>
-        public virtual bool IsComplete { get; set; }
+        public virtual bool         IsComplete { get; set; }
 
         /// <summary>
         /// Return whether the Task is overdue.

@@ -77,8 +77,8 @@ namespace ProjectManagerProto.ViewModels
             {
                 Header = "Priority",
                 Value = taskItem.PriorityValue,
-                Minimum = 0,
-                Maximum = 100,
+                Minimum = 1,
+                Maximum = 10,
                 SpinButtonPlacementMode = NumberBoxSpinButtonPlacementMode.Inline
             };
             var notes = new TextBox { Header = "Notes", Text = taskItem.Notes, AcceptsReturn = true, Height = 60 };

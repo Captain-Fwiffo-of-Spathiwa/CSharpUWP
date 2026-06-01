@@ -14,7 +14,7 @@ namespace ProjectManagerProto.Views.Converters
 
             if (dueDate == null)
             {
-                return "No Due Date";
+                return "";// "No Due Date";
             }
             else if (dueDate.Value < DateTime.Now && !isComplete)
             {

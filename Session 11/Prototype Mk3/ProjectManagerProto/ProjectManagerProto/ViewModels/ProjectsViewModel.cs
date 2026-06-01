@@ -27,7 +27,7 @@ namespace ProjectManagerProto.ViewModels
     public class ProjectsViewModel : INotifyPropertyChanged
     {
         // Binary save files are saved to the application's local folder, with this name
-        string saveFilename = "ProjectManagerMk3.bin";
+        string saveFilename = "TinyTidyProjectsData.bin";
         
         // Sorting and filtering is done by maintaining a saved list and a presentation list
         private readonly TaskCollection SavedProjects = new();
@@ -158,7 +158,7 @@ namespace ProjectManagerProto.ViewModels
         private async Task DeleteCompletedProjects()
         {
             bool confirm = await Application.Current.MainPage.DisplayAlert(
-                "Delete All Completed Projects",
+                "Warning",
                 "Are you sure you want to delete all completed projects?",
                 "Yes", "No");
 

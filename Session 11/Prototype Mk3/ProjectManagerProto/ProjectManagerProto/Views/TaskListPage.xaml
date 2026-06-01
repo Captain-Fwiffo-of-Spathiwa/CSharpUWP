@@ -11,6 +11,7 @@
             <converters:BoolToItalicsConverter x:Key="BoolToItalicsConverter" />
             <converters:BoolToGreyedConverter x:Key="BoolToGreyedConverter" />
             <converters:DateToTextConverter x:Key="DateToTextConverter" />
+            <converters:PriorityToTextConverter x:Key="PriorityToTextConverter" />
         </ResourceDictionary>
     </ContentPage.Resources>
 
@@ -82,7 +83,9 @@
                                     TextColor="{Binding IsComplete, Converter={StaticResource BoolToGreyedConverter}}"
                                     FontAttributes="{Binding IsComplete, Converter={StaticResource BoolToItalicsConverter}}"
                                     TextDecorations="{Binding IsComplete, Converter={StaticResource BoolToStrikethroughConverter}}" />
-                                <Label Grid.Row="1" Text="{Binding PriorityValue, StringFormat='Priority: {0}'}"/>
+                                <Label
+                                    Grid.Row="1" 
+                                    Text="{Binding PriorityValue, Converter={StaticResource PriorityToTextConverter}}" />
                                 <Label Grid.Row="2">
                                     <Label.Text>
                                         <MultiBinding Converter="{StaticResource DateToTextConverter}">
